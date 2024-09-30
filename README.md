@@ -21,7 +21,7 @@ version and installed packages. This can be useful when you need to use differen
 for different projects, or when you want to avoid conflicts between packages that have conflicting dependencies.
 
 1. First clone the repository into a specific directory: `git clone https://github.com/patrykslomka/SNA_team4.git`
-2. Enter project directory: `cd algorithms`
+2. Enter project directory: `cd [directory name]`
 3. Create a virtual environment: `python -m venv venv`
 4. Activate virtual environment: `windows: venv\Scripts\activate` or `mac: source venv/bin/activate`
 5. Install packages from requirements with pip: `pip install -r requirements.txt` (to be created)
