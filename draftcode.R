@@ -58,10 +58,10 @@ edge_colors <- ifelse(E(g)$type == "alliance", rgb(0, 0, 1, 0.5), rgb(1, 0, 0, 0
 edge_width <- ifelse(E(g)$type == "alliance", 0.5, 1.5)  # Thinner for alliances, thicker for rivalries
 
 # Scale vertex size with smaller scaling factor
-vertex_size <- degree(g) * 0.3 + 3
+vertex_size <- igraph::degree(g) * 0.3 + 3
 
 # Set labels for the top 5% highest-degree nodes only
-top_nodes <- degree(g) >= quantile(degree(g), 0.95)
+top_nodes <- igraph::degree(g) >= quantile(igraph::degree(g), 0.95)
 vertex_labels <- ifelse(top_nodes, V(g)$name, NA)  # Label only top 5% by degree
 
 # Plot the network
@@ -86,3 +86,4 @@ legend(
   cex = 0.8,   # Smaller legend size
   bty = "n"    # No border around the legend
 )
+
