@@ -48,9 +48,13 @@ V(g)$criminal_activities <- data$criminal_activities[match(V(g)$name, data$group
 V(g)$drug_trafficking <- data$drug_trafficking[match(V(g)$name, data$group)]
 V(g)$armed_conflicts <- data$armed_conflicts[match(V(g)$name, data$group)]
 
+#A glimpse inside the network
 snafun::g_summary(g)
+
 #plot the graph
-plot(g)
+plot(g) # very bad plot
+
+
 # Visualize the network
 
 # Define edge colors with transparency
