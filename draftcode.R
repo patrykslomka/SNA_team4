@@ -6,7 +6,7 @@ library(statnet)
 library(snafun)
 
 # Load the data
-data <- read.csv("BACRIM-DB.csv", header=TRUE, sep=",")
+data <- read.csv("Data/BACRIM-DB.csv", header=TRUE, sep=",")
 
 # remove duplicates
 data <- data[!duplicated(data),]
