@@ -69,10 +69,11 @@ combined_graph <- graph_from_data_frame(combined_edges, directed = FALSE)
 # Map Group names to node labels using the nodes dataset
 V(combined_graph)$name <- nodes$Group[match(V(combined_graph)$name, nodes$Node)]
 
+
 # Plot the network with improved visualization
 plot(
   combined_graph,
-  vertex.label = V(combined_graph)$name,       # Use cartel names as labels
+  vertex.label = V(combined_graph)$name,       # I deleted the name of the cartels because it made the plot unreadable
   vertex.label.cex = 0.6,                      # Adjust label size for readability
   vertex.size = 10,                            # Set node size
   vertex.color = "orange",                     # Set node color
@@ -82,5 +83,77 @@ plot(
   main = "Cartel Network with Alliances and Rivalries"
 )
 
+# Display a summary of the network
 snafun::g_summary(combined_graph)
+
+# Calculate and plot centralities
+snafun::plot_centralities(
+  combined_graph,
+  measures = c("betweenness", "closeness", "degree", "eccentricity"), 
+  directed = TRUE,
+  mode = "all",
+  k = 3,
+  rescaled = FALSE
+)
+
+# Calculate degree distribution
+degree_distribution <- snafun::g_degree_distribution(combined_graph, 
+                                                     mode = "all", 
+                                                     type = "count")
+# Create a frequency plot with lines for degree distribution
+plot(1:length(degree_distribution), degree_distribution, type = "h", lwd = 2, 
+     main = "Degree Distribution", xlab = "Degree", ylab = "Frequency")
+
+
+# Improved visualization of the cartel network with alliances and rivalries
+# Map Group names to node labels using the nodes dataset
+V(combined_graph)$name <- nodes$Group[match(V(combined_graph)$name, nodes$Node)]
+
+# Apply community detection using the Louvain method
+communities <- cluster_louvain(combined_graph)
+
+# Assign each node a unique color based on its community membership
+community_colors <- rainbow(length(unique(membership(communities))))
+V(combined_graph)$color <- community_colors[membership(communities)]
+
+# Adjust node sizes based on degree
+V(combined_graph)$size <- igraph::degree(combined_graph, mode = "all") * 1.5 + 5
+
+# Adjust edge width based on weight and set colors with transparency
+E(combined_graph)$width <- E(combined_graph)$weight / 2
+E(combined_graph)$color <- ifelse(E(combined_graph)$type == "alliance", adjustcolor("blue", alpha.f = 0.5), adjustcolor("red", alpha.f = 0.5))
+E(combined_graph)$curved <- 0.1  # Reduce edge curvature
+
+# Set background color
+par(bg = "lightgray")
+
+# Plot the network with improved visualization
+plot(
+  combined_graph,
+  vertex.label.dist = 0.5,                # Offset labels slightly from nodes
+  vertex.label = ifelse(degree(combined_graph) > 8, V(combined_graph)$name, NA),  # Only label high-degree nodes
+  vertex.size = V(combined_graph)$size,                                            # Set node size by degree
+  layout = layout_with_fr(combined_graph, niter = 10000, area = 30 * vcount(combined_graph)^2),                                                         # Use Fruchterman-Reingold layout
+  main = "Improved Cartel Network with Alliances and Rivalries"
+)
+
+# Add a legend for community colors
+legend(
+  "topright",
+  legend = paste("Community", 1:length(unique(membership(communities)))),
+  col = community_colors,
+  pch = 19,           # Use filled circles in legend
+  title = "Cartel Communities",
+  cex = 0.8           # Adjust legend size for readability
+)
+
+# Add a legend for edge colors
+legend(
+  "bottomright",
+  legend = c("Alliance", "Rivalry"),
+  col = c("blue", "red"),
+  lwd = 2,             # Line width for edge type in legend
+  title = "Relationship Type",
+  cex = 0.8            # Adjust legend size for readability
+)
 
