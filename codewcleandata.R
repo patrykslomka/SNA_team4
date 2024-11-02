@@ -127,9 +127,9 @@ V(combined_graph)$label.color <- "black"  # Set label color to white for visibil
 # Plot the network with improved visualization
 plot(
   combined_graph,
-  vertex.label = V(combined_graph)$name,           # Display labels for all nodes
+  vertex.label = ifelse(igraph::degree(combined_graph) > 10, V(combined_graph)$name, NA),           # Display labels for nodes with high degree
   vertex.label.cex = 0.8,                          # Increase label size
-  vertex.label.dist = 0,                           # Remove label offset to keep labels close to nodes
+  vertex.label.dist = 0.5,                           # Remove label offset to keep labels close to nodes
   vertex.size = V(combined_graph)$size,            # Set node size by degree
   layout = layout_with_fr(combined_graph, niter = 10000, area = 30 * vcount(combined_graph)^2),  # Fruchterman-Reingold layout
   main = "Improved Cartel Network with Alliances and Rivalries"
@@ -155,30 +155,5 @@ legend(
   cex = 0.8            # Adjust legend size for readability
 )
 
-# Calculate node degree and adjust node size accordingly
-V(combined_graph)$size <- degree(combined_graph, mode = "all") * 1.5 + 5
-
-# Adjust edge width based on weight
-E(combined_graph)$width <- E(combined_graph)$weight / 2
-
-# Use curved edges to better distinguish overlapping edges
-E(combined_graph)$curved <- 0.2
-
-# Apply community detection and color nodes by community
-communities <- cluster_louvain(combined_graph)
-V(combined_graph)$color <- membership(communities)
-
-# Plot the improved network
-plot(
-  combined_graph,
-  vertex.label = ifelse(degree(combined_graph) > 5, V(combined_graph)$name, NA),  # Only label higher-degree nodes
-  vertex.label.cex = 0.7,                    # Adjust label size for readability
-  vertex.size = V(combined_graph)$size,      # Set node size by degree
-  edge.color = ifelse(E(combined_graph)$type == "alliance", "blue", "red"), # Color edges by type
-  edge.width = E(combined_graph)$width,      # Adjust edge width by weight
-  edge.curved = E(combined_graph)$curved,    # Use curved edges
-  layout = layout_with_fr,                   # Use Fruchterman-Reingold layout for better spacing
-  main = "Enhanced Cartel Network with Alliances and Rivalries"
-)
 
 
