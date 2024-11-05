@@ -83,6 +83,7 @@ plot(
 )
 
 # Display a summary of the network
+summary(combined_graph)
 snafun::g_summary(combined_graph)
 
 # Calculate and plot centralities
@@ -154,6 +155,3 @@ legend(
   title = "Relationship Type",
   cex = 0.8            # Adjust legend size for readability
 )
-
-
-
