@@ -2,10 +2,12 @@
 library(igraph)
 library(dplyr)
 library(snafun)
-
+library(intergraph)
+library(ergm)
 # Load datasets
 rivals <- read.csv("Data/BACRIM2020_Rivals.csv")
 nodes <- read.csv("Data/BACRIM2020_Nodes.csv")
+alliances <- read.csv("Data/BACRIM2020_Alliances.csv")
 
 # Remove duplicate rivalries by creating unique pairs
 rivals <- rivals %>%
@@ -30,7 +32,7 @@ print(rival_grouped_df)
 
 # Create an igraph object for rivalries only
 rivalry_edges <- rivals %>%
-  select(Node, RNode, weight) %>%
+  select(Node, RNode) %>%
   rename(source = Node, target = RNode)
 
 rivalry_graph <- graph_from_data_frame(rivalry_edges, directed = FALSE)
@@ -118,4 +120,80 @@ legend(
   title = "Relationship Type",
   cex = 0.8
 )
+#------------
+# Remove duplicate alliances by creating unique pairs
+alliances <- alliances %>%
+  mutate(unique_pair = apply(., 1, function(row) paste(sort(c(row['Node'], row['RNode'])), collapse = "_"))) %>%
+  distinct(unique_pair, .keep_all = TRUE) %>%
+  select(-unique_pair)
 
+# Aggregate alliances by cartel
+alliance_group_df <- alliances %>%
+  select(Group, RGroup, weight)
+alliance_rgroup_df <- alliances %>%
+  select(RGroup = Group, Group = RGroup, weight)
+combined_alliance_df <- bind_rows(alliance_group_df, alliance_rgroup_df)
+
+alliance_grouped_df <- combined_alliance_df %>%
+  group_by(Group) %>%
+  summarise(alliances = n(),
+            total_alliance_weight = sum(weight))
+
+# Display the alliance count dataframe
+print(alliance_grouped_df)
+
+# Create an igraph object for alliances only
+alliance_edges <- alliances %>%
+  select(Node, RNode, weight) %>%
+  rename(source = Node, target = RNode)
+
+alliance_graph <- graph_from_data_frame(alliance_edges, directed = FALSE)
+
+# Map Group names to node labels using the nodes dataset
+V(alliance_graph)$name <- nodes$Group[match(V(alliance_graph)$name, nodes$Node)]
+
+
+# Convert the igraph rivalry graph to a network object for ERGM modeling
+rivalry_net <- asNetwork(rivalry_graph)
+
+# Convert the alliance igraph object to a network object for use as an edge covariate
+alliance_net <- asNetwork(alliance_graph)
+alliance_cov <- as.matrix.network(alliance_net)
+print(network.size(rivalry_net))
+print(network.size(alliance_net))
+
+# Fit the ERGM model on the rivalry network with alliance data as a covariate
+model <- ergm(
+  rivalry_net ~ edges + 
+    gwesp(0.5, fixed = TRUE) +     # Geometrically Weighted Edgewise Shared Partners for triadic closure
+    triangle +                     # Triadic closure to capture "enemy of my enemy" effect
+    degree(1) +                    # Controls for popular cartels with more rivalries
+    edgecov(alliance_cov),         # Edge covariate to test influence of alliances on rivalry formation
+  control = control.ergm(MCMC.samplesize = 5000, MCMC.burnin = 1000)
+)
+
+# Display the model summary
+summary(model)
+
+
+
+model <- ergm(rivalry_network ~ edges)  # Define the ERGM model on the network object
+# Define the ERGM model on the network object
+model <- ergm(rivalry_network ~ edges + 
+                gwesp(decay = 0.5, fixed = TRUE) +  # Triadic closure for shared enemies
+                edgecov(rivalry_network) +  # Influence of shared rivalry on alliances
+                nodematch("region") +  # Optional: if region is relevant
+                nodecov("activity_count"))  # Optional: if diversification of criminal activities matters
+
+summary(model)
+
+
+model2 <- ergm(rivalry_network ~ edges + 
+                gwesp(decay = 0.5, fixed = TRUE))
+
+summary(model2)
+
+
+model3 <- ergm(rivalry_network ~ edges + 
+                gwesp(decay = 0.5, fixed = TRUE) +  # Triadic closure for shared enemies
+                edgecov(rivalry_network))  # Influence of shared rivalry on alliances
