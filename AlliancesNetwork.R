@@ -12,7 +12,7 @@ vertices <- read.csv("vertice_data.csv")
 alliance_edges <- subset(edges, type == "alliance")
 
 # Create the graph object
-g_alliances <- graph_from_data_frame(d = alliance_edges, directed = FALSE)
+g_alliances <- graph_from_data_frame(d = alliance_edges, vertices = data_combined, directed = FALSE)
 
 # Plot the network using ggraph
 ggraph(g_alliances, layout = "fr") +

@@ -101,12 +101,37 @@ alliance_degrees_matched <- alliance_degrees[match(rivalry_node_names, alliance_
 alliance_degrees_matched[is.na(alliance_degrees_matched)] <- 0
 
 # Assign the matched alliance degree to rivalry network
-set.vertex.attribute(g, "alliance_degree", alliance_degrees_matched)
-
+network::set.vertex.attribute(g, "alliance_degree", alliance_degrees_matched)
 ```
 
 ```{r}
+# Check node names in alliance network
+alliance_node_names <- network::get.vertex.attribute(g_alliances, "vertex.names")
+print(alliance_node_names)
 
+# Check node names in rivalry network
+rivalry_node_names <- network::get.vertex.attribute(g, "vertex.names")
+print(rivalry_node_names)
+
+# Standardize node names to lowercase and trim any whitespace
+alliance_node_names <- tolower(trimws(alliance_node_names))
+rivalry_node_names <- tolower(trimws(rivalry_node_names))
+
+# Convert alliance network to igraph to calculate eigenvector centrality
+library(intergraph)
+alliance_igraph <- asIgraph(g_alliances)
+
+# Calculate eigenvector centrality in the alliance network
+alliance_eigenvector <- igraph::eigen_centrality(alliance_igraph)$vector
+
+# Match alliance eigenvector centrality to node names in rivalry network
+alliance_eigenvector_matched <- alliance_eigenvector[match(rivalry_node_names, alliance_node_names)]
+
+# Replace any NAs with 0 to ensure complete data
+alliance_eigenvector_matched[is.na(alliance_eigenvector_matched)] <- 0
+
+# Assign the matched alliance eigenvector centrality to the rivalry network
+network::set.vertex.attribute(g, "alliance_eigenvector", alliance_eigenvector_matched)
 ```
 
 ```{r}
@@ -135,10 +160,21 @@ snafun::stat_plot_gof(gofm)
 ```
 
 ```{r, fig.width=8, fig.height=6}
-m2 <-ergm::ergm((g ~ edges + gwesp(0.5, fixed = TRUE) + degree(1) + gwdsp(0.5, fixed = TRUE) + edgecov(state_dependency_matrix1)), control = ergm::control.ergm(MCMC.burnin = 5000,
-                                               MCMC.samplesize = 10000,
-                                               seed = 123456,
-                                               MCMLE.maxit = 20))
+m2 <- ergm::ergm(
+  g ~ edges + 
+    gwesp(0.5, fixed = TRUE) + 
+    degree(1) + 
+    gwdsp(0.5, fixed = TRUE) + 
+    nodecov("alliance_eigenvector") + 
+    nodecov("alliance_degree") +
+    edgecov(state_dependency_matrix1),
+  control = ergm::control.ergm(
+    MCMC.burnin = 5000,
+    MCMC.samplesize = 10000,
+    seed = 123456,
+    MCMLE.maxit = 20
+  )
+)
 summary(m2)
 ergm::mcmc.diagnostics(m2)
 
@@ -166,10 +202,6 @@ fit_gof <- btergm::gof(
 
 # Plot the GOF results
 plot(fit_gof)
-
-
-
-
 
 ```
 
