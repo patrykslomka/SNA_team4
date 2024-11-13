@@ -95,6 +95,21 @@ snafun::stat_plot_gof(gofm)
 
 ```
 
+```{r, fig.width=8, fig.height=6}
+m2 <-ergm::ergm((g ~ edges + gwesp(0.5, fixed = TRUE) + degree(1) + gwdsp(0.5, fixed = TRUE) + edgecov(state_dependency_matrix1)), control = ergm::control.ergm(MCMC.burnin = 5000,
+                                               MCMC.samplesize = 10000,
+                                               seed = 123456,
+                                               MCMLE.maxit = 20))
+summary(m2)
+ergm::mcmc.diagnostics(m2)
+
+gofm <- ergm::gof(m2)
+snafun::stat_plot_gof(gofm)
+
+```
+
+
+
 ```{r}
 # Define the model formula (use a simpler model if complex terms are causing issues)
 model_formula <- g ~ edges + degree(1)
