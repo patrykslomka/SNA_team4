@@ -18,7 +18,10 @@ library(igraph)
 ```{r load data}
 valid_edges <- read.csv("Valid_edges.csv")
 data_combined <- read.csv("vertice_data.csv")
-state_dependency_matrix <- read.csv("state_dependency_matrix.csv")
+
+state_dependency_matrix <- readr::read_csv("state_dependency_matrix.csv")
+state_dependency_matrix <- as.matrix(state_dependency_matrix)
+rownames(state_dependency_matrix) <- colnames(state_dependency_matrix)
 ```
 
 
@@ -26,11 +29,13 @@ state_dependency_matrix <- read.csv("state_dependency_matrix.csv")
 ```{r pressure, echo=FALSE}
 rivalry_edges <- subset(valid_edges, type == "rivalry")
 g <- igraph::graph_from_data_frame(d = rivalry_edges, vertices = data_combined, directed = FALSE)
-g <- snafun::to_network(g)
 
 # Identify and remove isolates (nodes with degree zero)
-isolates <- V(g)[degree(g) == 0]  # Find nodes with no connections
-g <- delete_vertices(g, isolates)  # Remove isolates
+isolates <- igraph::V(g)[igraph::degree(g) == 0]  # Find nodes with no connections
+g <- igraph::delete_vertices(g, isolates)  # Remove isolates
+
+# Change to network
+g <- snafun::to_network(g)
 
 # Filter only alliance relationships
 alliance_edges <- subset(valid_edges, type == "alliance")
@@ -51,29 +56,68 @@ g_alliances_matrix <- as.matrix(g_alliances)
 (dim(g_alliances_matrix))  # Ensure this matches the dimension of g
 (any(is.na(g_alliances_matrix)))
 
-
 g_rivalry_matrix <- as.matrix(g)
 (dim(g_rivalry_matrix))  # Ensure this matches the dimension of g
 (any(is.na(g_rivalry_matrix)))
 
+# Step 1: Identify the common rows and columns
+common_rows <- intersect(rownames(g_alliances_matrix), rownames(g_rivalry_matrix))
+common_cols <- intersect(colnames(g_alliances_matrix), colnames(g_rivalry_matrix))
+
+# Step 2: Subset both matrices to keep only the common rows and columns
+g_alliances_matrix <- g_alliances_matrix[common_rows, common_cols, drop = FALSE]
+(dim(g_alliances_matrix))  # Ensure this matches the dimension of g
+(any(is.na(g_alliances_matrix)))
+
 state_dependency_matrix <- as.matrix(state_dependency_matrix)
+
+common_rows <- intersect(rownames(state_dependency_matrix), rownames(g_rivalry_matrix))
+common_cols <- intersect(colnames(state_dependency_matrix), colnames(g_rivalry_matrix))
+
+state_dependency_matrix1 <- state_dependency_matrix[common_rows, common_cols, drop = FALSE]
+(dim(state_dependency_matrix1))  # Ensure this matches the dimension of g
+(any(is.na(state_dependency_matrix1)))
 ```
 
 
 
 
 ```{r}
-m1 <-ergm::ergm((g ~ edges + gwesp(0.5, fixed = TRUE) + edgecov(g_alliances_matrix)),
-                  control = ergm::control.ergm(MCMC.burnin = 5000,
+m1 <-ergm::ergm((g ~ edges + gwesp(0.5, fixed = TRUE) + edgecov(state_dependency_matrix1)), control = ergm::control.ergm(MCMC.burnin = 5000,
                                                MCMC.samplesize = 10000,
                                                seed = 123456,
-                                               init = c(-5, 0.1, 0.1),
                                                MCMLE.maxit = 20))
 summary(m1)
+ergm::mcmc.diagnostics(m1)
+
+gofm <- ergm::gof(m1)
+snafun::stat_plot_gof(gofm)
 
 ```
 
+```{r}
+# Define the model formula (use a simpler model if complex terms are causing issues)
+model_formula <- g ~ edges + degree(1)
 
+# Fit the BTERGM model
+btergm_model <- btergm::btergm(model_formula, R = 1000)
+
+# Run GOF with explicit settings for `target` and increased `nsim`
+fit_gof <- btergm::gof(
+  btergm_model,
+  nsim = 200,  # Increase to see if it resolves the issue
+  target = network_list,
+  statistics = c("degree", "esp", "distance", "triad")
+)
+
+# Plot the GOF results
+plot(fit_gof)
+
+
+
+
+
+```
 
 
 
