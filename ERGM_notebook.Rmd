@@ -41,7 +41,6 @@ g <- snafun::to_network(g)
 alliance_edges <- subset(valid_edges, type == "alliance")
 g_alliances <- graph_from_data_frame(d = alliance_edges, vertices = data_combined, directed = FALSE)
 g_alliances <- snafun::to_network(g_alliances)
-
 ```
 
 
@@ -79,11 +78,54 @@ state_dependency_matrix1 <- state_dependency_matrix[common_rows, common_cols, dr
 (any(is.na(state_dependency_matrix1)))
 ```
 
+```{r}
+# Check node names in alliance network
+alliance_node_names <- network::get.vertex.attribute(g_alliances, "vertex.names")
+print(alliance_node_names)
 
+# Check node names in rivalry network
+rivalry_node_names <- network::get.vertex.attribute(g, "vertex.names")
+print(rivalry_node_names)
 
+# Standardize node names to lowercase and trim any whitespace
+alliance_node_names <- tolower(trimws(alliance_node_names))
+rivalry_node_names <- tolower(trimws(rivalry_node_names))
+
+# Calculate degrees in alliance network
+alliance_degrees <- sna::degree(alliance_net)
+
+# Match alliance degrees to node names in rivalry network
+alliance_degrees_matched <- alliance_degrees[match(rivalry_node_names, alliance_node_names)]
+
+# Replace any NAs with 0 to ensure complete data
+alliance_degrees_matched[is.na(alliance_degrees_matched)] <- 0
+
+# Assign the matched alliance degree to rivalry network
+set.vertex.attribute(g, "alliance_degree", alliance_degrees_matched)
+
+```
 
 ```{r}
-m1 <-ergm::ergm((g ~ edges + gwesp(0.5, fixed = TRUE) + edgecov(state_dependency_matrix1)), control = ergm::control.ergm(MCMC.burnin = 5000,
+library(snafun)
+# Calculate eigenvector centrality in the igraph alliance network
+alliance_eigenvector <- igraph::eigen_centrality(g_alliances)$vector
+
+```
+
+```{r}
+# Retrieve the alliance_degree attribute
+alliance_degree <- get.vertex.attribute(g, "alliance_degree")
+# Find indices of nodes with NA in alliance_degree
+na_indices <- which(is.na(alliance_degree))
+
+# Print the names or indices of nodes with NA values
+node_names_with_na <- get.vertex.attribute(rivalry_graph, "vertex.names")[na_indices]
+node_names_with_na
+
+```
+
+```{r, fig.width=8, fig.height=6}
+m1 <-ergm::ergm((g ~ edges + gwesp(0.5, fixed = TRUE) + edgecov(state_dependency_matrix1) + + nodecov("alliance_degree")), control = ergm::control.ergm(MCMC.burnin = 5000,
                                                MCMC.samplesize = 10000,
                                                seed = 123456,
                                                MCMLE.maxit = 20))
