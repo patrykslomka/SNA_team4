@@ -1,0 +1,96 @@
+---
+title: "ERGM_team"
+author: "Timo Timmermans"
+date: "2024-11-13"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load data}
+library(igraph)
+```
+
+
+```{r load data}
+valid_edges <- read.csv("Valid_edges.csv")
+data_combined <- read.csv("vertice_data.csv")
+```
+
+
+
+```{r pressure, echo=FALSE}
+g <- igraph::graph_from_data_frame(d = valid_edges, vertices = data_combined, directed = FALSE)
+```
+
+
+
+```{r}
+
+
+
+
+```
+
+
+
+```{r Complex figure without unconnected nodes as presented by Shaghi}
+# Create a subgraph with only alliance edges
+alliance_graph <- subgraph.edges(g, E(g)[E(g)$type == "rivalry"])
+
+# Remove unconnected nodes from the alliance-only subgraph
+g_no_uncconnected_nodes <- delete.vertices(alliance_graph, which(degree(alliance_graph) == 0))
+
+# Apply community detection using the Louvain method
+communities <- cluster_louvain(g_no_uncconnected_nodes)
+
+# Assign each node a unique color based on its community membership
+community_colors <- rainbow(length(unique(membership(communities))))
+V(g_no_uncconnected_nodes)$color <- community_colors[membership(communities)]
+
+# Adjust node sizes based on degree
+V(g_no_uncconnected_nodes)$size <- igraph::degree(g_no_uncconnected_nodes, mode = "all") * 0.5 + 5
+
+# Set edge colors with transparency
+E(g_no_uncconnected_nodes)$color <- ifelse(E(g_no_uncconnected_nodes)$type == "alliance", adjustcolor("blue", alpha.f = 0.5), adjustcolor("red", alpha.f = 0.5))
+E(g_no_uncconnected_nodes)$curved <- 0.1  # Reduce edge curvature
+
+# Set background color
+par(bg = "lightgray")
+V(g_no_uncconnected_nodes)$label.color <- "black"  # Set label color to black for visibility
+
+# Plot the network with improved visualization
+plot(
+  g_no_uncconnected_nodes,
+  vertex.label = ifelse(igraph::degree(g_no_uncconnected_nodes) > 10, V(g_no_uncconnected_nodes)$name, NA),           # Display labels for nodes with high degree
+  vertex.label.cex = 0.8,                          # Increase label size
+  vertex.label.dist = 0.5,                         # Adjust label offset to keep labels close to nodes
+  vertex.size = V(g_no_uncconnected_nodes)$size,                         # Set node size by degree
+  layout = layout_with_fr(g_no_uncconnected_nodes, niter = 10000, area = 30 * vcount(g_no_uncconnected_nodes)^2),  # Fruchterman-Reingold layout
+  main = "Improved Cartel Network with Alliances and Rivalries"
+)
+
+# Add a legend for community colors
+legend(
+  "topright",
+  legend = paste("Community", 1:length(unique(membership(communities)))),
+  col = community_colors,
+  pch = 19,           # Use filled circles in legend
+  title = "Cartel Communities",
+  cex = 0.8           # Adjust legend size for readability
+)
+
+# Add a legend for edge colors
+legend(
+  "bottomright",
+  legend = c("Alliance", "Rivalry"),
+  col = c("blue", "red"),
+  lwd = 2,             # Line width for edge type in legend
+  title = "Relationship Type",
+  cex = 0.8            # Adjust legend size for readability
+)
+
+```
