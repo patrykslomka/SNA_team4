@@ -30,8 +30,12 @@ degree_centrality <- degree(g_alliances)
 betweenness_centrality <- betweenness(g_alliances, normalized = TRUE)
 closeness_centrality <- closeness(g_alliances, normalized = TRUE)
 eigenvector_centrality <- eigen_centrality(g_alliances)$vector
-transitivity_values <- transitivity(g_alliances, type = "local", isolates = "zero")
 
+stress_snafun <- snafun::v_stress(g_alliances)
+betweenness_centrality_snafun <- snafun::v_betweenness(g_alliances)
+closeness_centrality_snafun <- snafun::v_closeness(g_alliances)
+eigenvector_centrality_snafun <- snafun::v_eigenvector(g_alliances)
+degree_centrality_snafun <- snafun::v_degree(g_alliances)
 
 # Create a data frame with all node attributes
 node_attributes <- data.frame(
@@ -43,8 +47,20 @@ node_attributes <- data.frame(
   transitivity = transitivity_values
 )
 
+# Create a data frame with all node attributes
+node_attributes_snafun <- data.frame(
+  name = V(g_alliances)$name,
+  degree_centrality = degree_centrality_snafun,
+  betweenness_centrality = betweenness_centrality_snafun,
+  closeness_centrality = closeness_centrality_snafun,
+  eigenvector_centrality = eigenvector_centrality_snafun,
+  stress = stress_snafun
+)
+
 # Display the data frame
 print(node_attributes)
+print(node_attributes_snafun)
 
 # Save the node attributes as a CSV file
 write.csv(node_attributes, "alliance_network_node_attributes.csv", row.names = FALSE)
+write.csv(node_attributes_snafun, "alliance_network_node_attributes_snafun.csv", row.names = FALSE)
