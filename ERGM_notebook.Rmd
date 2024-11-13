@@ -18,96 +18,63 @@ library(igraph)
 ```{r load data}
 valid_edges <- read.csv("Valid_edges.csv")
 data_combined <- read.csv("vertice_data.csv")
+state_dependency_matrix <- read.csv("state_dependency_matrix.csv")
 ```
 
 
 
 ```{r pressure, echo=FALSE}
-g <- igraph::graph_from_data_frame(d = valid_edges, vertices = data_combined, directed = FALSE)
-(igraph::is.directed(g))
+rivalry_edges <- subset(valid_edges, type == "rivalry")
+g <- igraph::graph_from_data_frame(d = rivalry_edges, vertices = data_combined, directed = FALSE)
+g <- snafun::to_network(g)
+
+# Identify and remove isolates (nodes with degree zero)
+isolates <- V(g)[degree(g) == 0]  # Find nodes with no connections
+g <- delete_vertices(g, isolates)  # Remove isolates
+
+# Filter only alliance relationships
+alliance_edges <- subset(valid_edges, type == "alliance")
+g_alliances <- graph_from_data_frame(d = alliance_edges, vertices = data_combined, directed = FALSE)
+g_alliances <- snafun::to_network(g_alliances)
+
 ```
 
 
 
 ```{r}
-# Combine networks into a list for BTERGM
-# Ensure the graph is undirected
-g <- igraph::as.undirected(g, mode = "collapse")
-network_list <- list(g)
+m0 <- ergm::ergm(g ~ edges)
+summary(m0)
 
-# Define the model formula (using degree term correctly with btergm::edges and btergm::degree)
-model_formula <- network_list ~ edges + degree(1)
+```
+```{r}
+g_alliances_matrix <- as.matrix(g_alliances)
+(dim(g_alliances_matrix))  # Ensure this matches the dimension of g
+(any(is.na(g_alliances_matrix)))
 
-# Fit the BTERGM model with R bootstrap replicates
-btergm_model <- btergm::btergm(
-  model_formula,
-  R = 1000  # Set the number of bootstraps as needed
-)
 
-fit.gof <- btergm::gof(fit)
-snafun::stat_plot_gof(fit.gof)
+g_rivalry_matrix <- as.matrix(g)
+(dim(g_rivalry_matrix))  # Ensure this matches the dimension of g
+(any(is.na(g_rivalry_matrix)))
 
-# Display model summary using btergm::summary.btergm
-print(btergm::summary.btergm(btergm_model))
+state_dependency_matrix <- as.matrix(state_dependency_matrix)
+```
+
+
+
+
+```{r}
+m1 <-ergm::ergm((g ~ edges + gwesp(0.5, fixed = TRUE) + edgecov(g_alliances_matrix)),
+                  control = ergm::control.ergm(MCMC.burnin = 5000,
+                                               MCMC.samplesize = 10000,
+                                               seed = 123456,
+                                               init = c(-5, 0.1, 0.1),
+                                               MCMLE.maxit = 20))
+summary(m1)
 
 ```
 
 
 
-```{r Complex figure without unconnected nodes as presented by Shaghi}
-# Create a subgraph with only alliance edges
-alliance_graph <- subgraph.edges(g, E(g)[E(g)$type == "alliance"])
 
-# Remove unconnected nodes from the alliance-only subgraph
-g_no_uncconnected_nodes <- delete.vertices(alliance_graph, which(degree(alliance_graph) == 0))
 
-# Apply community detection using the Louvain method
-communities <- cluster_louvain(g_no_uncconnected_nodes)
 
-# Assign each node a unique color based on its community membership
-community_colors <- rainbow(length(unique(membership(communities))))
-V(g_no_uncconnected_nodes)$color <- community_colors[membership(communities)]
-
-# Adjust node sizes based on degree
-V(g_no_uncconnected_nodes)$size <- igraph::degree(g_no_uncconnected_nodes, mode = "all") * 0.5 + 5
-
-# Set edge colors with transparency
-E(g_no_uncconnected_nodes)$color <- ifelse(E(g_no_uncconnected_nodes)$type == "alliance", adjustcolor("blue", alpha.f = 0.5), adjustcolor("red", alpha.f = 0.5))
-E(g_no_uncconnected_nodes)$curved <- 0.1  # Reduce edge curvature
-
-# Set background color
-par(bg = "lightgray")
-V(g_no_uncconnected_nodes)$label.color <- "black"  # Set label color to black for visibility
-
-# Plot the network with improved visualization
-plot(
-  g_no_uncconnected_nodes,
-  vertex.label = ifelse(igraph::degree(g_no_uncconnected_nodes) > 10, V(g_no_uncconnected_nodes)$name, NA),           # Display labels for nodes with high degree
-  vertex.label.cex = 0.8,                          # Increase label size
-  vertex.label.dist = 0.5,                         # Adjust label offset to keep labels close to nodes
-  vertex.size = V(g_no_uncconnected_nodes)$size,                         # Set node size by degree
-  layout = layout_with_fr(g_no_uncconnected_nodes, niter = 10000, area = 30 * vcount(g_no_uncconnected_nodes)^2),  # Fruchterman-Reingold layout
-  main = "Improved Cartel Network with Alliances and Rivalries"
-)
-
-# Add a legend for community colors
-legend(
-  "topright",
-  legend = paste("Community", 1:length(unique(membership(communities)))),
-  col = community_colors,
-  pch = 19,           # Use filled circles in legend
-  title = "Cartel Communities",
-  cex = 0.8           # Adjust legend size for readability
-)
-
-# Add a legend for edge colors
-legend(
-  "bottomright",
-  legend = c("Alliance", "Rivalry"),
-  col = c("blue", "red"),
-  lwd = 2,             # Line width for edge type in legend
-  title = "Relationship Type",
-  cex = 0.8            # Adjust legend size for readability
-)
-
-```
