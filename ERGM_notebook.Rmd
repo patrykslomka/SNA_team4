@@ -106,9 +106,6 @@ set.vertex.attribute(g, "alliance_degree", alliance_degrees_matched)
 ```
 
 ```{r}
-library(snafun)
-# Calculate eigenvector centrality in the igraph alliance network
-alliance_eigenvector <- igraph::eigen_centrality(g_alliances)$vector
 
 ```
 
