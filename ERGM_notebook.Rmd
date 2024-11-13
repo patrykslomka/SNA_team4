@@ -24,14 +24,31 @@ data_combined <- read.csv("vertice_data.csv")
 
 ```{r pressure, echo=FALSE}
 g <- igraph::graph_from_data_frame(d = valid_edges, vertices = data_combined, directed = FALSE)
+(igraph::is.directed(g))
 ```
 
 
 
 ```{r}
+# Combine networks into a list for BTERGM
+# Ensure the graph is undirected
+g <- igraph::as.undirected(g, mode = "collapse")
+network_list <- list(g)
 
+# Define the model formula (using degree term correctly with btergm::edges and btergm::degree)
+model_formula <- network_list ~ edges + degree(1)
 
+# Fit the BTERGM model with R bootstrap replicates
+btergm_model <- btergm::btergm(
+  model_formula,
+  R = 1000  # Set the number of bootstraps as needed
+)
 
+fit.gof <- btergm::gof(fit)
+snafun::stat_plot_gof(fit.gof)
+
+# Display model summary using btergm::summary.btergm
+print(btergm::summary.btergm(btergm_model))
 
 ```
 
@@ -39,7 +56,7 @@ g <- igraph::graph_from_data_frame(d = valid_edges, vertices = data_combined, di
 
 ```{r Complex figure without unconnected nodes as presented by Shaghi}
 # Create a subgraph with only alliance edges
-alliance_graph <- subgraph.edges(g, E(g)[E(g)$type == "rivalry"])
+alliance_graph <- subgraph.edges(g, E(g)[E(g)$type == "alliance"])
 
 # Remove unconnected nodes from the alliance-only subgraph
 g_no_uncconnected_nodes <- delete.vertices(alliance_graph, which(degree(alliance_graph) == 0))
