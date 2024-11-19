@@ -43,13 +43,6 @@ g_alliances <- graph_from_data_frame(d = alliance_edges, vertices = data_combine
 g_alliances <- snafun::to_network(g_alliances)
 ```
 
-
-
-```{r}
-m0 <- ergm::ergm(g ~ edges)
-summary(m0)
-
-```
 ```{r}
 g_alliances_matrix <- as.matrix(g_alliances)
 (dim(g_alliances_matrix))  # Ensure this matches the dimension of g
@@ -136,7 +129,7 @@ network::set.vertex.attribute(g, "alliance_eigenvector", alliance_eigenvector_ma
 
 ```{r}
 # Retrieve the alliance_degree attribute
-alliance_degree <- get.vertex.attribute(g, "alliance_degree")
+alliance_degree <- network::get.vertex.attribute(g, "alliance_degree")
 # Find indices of nodes with NA in alliance_degree
 na_indices <- which(is.na(alliance_degree))
 
@@ -145,9 +138,14 @@ node_names_with_na <- get.vertex.attribute(rivalry_graph, "vertex.names")[na_ind
 node_names_with_na
 
 ```
+```{r}
+m0 <- ergm::ergm(g ~ edges)
+summary(m0)
+
+```
 
 ```{r, fig.width=8, fig.height=6}
-m1 <-ergm::ergm((g ~ edges + gwesp(0.5, fixed = TRUE) + edgecov(state_dependency_matrix1) + + nodecov("alliance_degree")), control = ergm::control.ergm(MCMC.burnin = 5000,
+m1 <- ergm::ergm((g ~ edges + gwesp(0.5, fixed = TRUE) + edgecov(state_dependency_matrix1) + nodecov("alliance_degree")), control = ergm::control.ergm(MCMC.burnin = 5000,
                                                MCMC.samplesize = 10000,
                                                seed = 123456,
                                                MCMLE.maxit = 20))
@@ -183,28 +181,78 @@ snafun::stat_plot_gof(gofm)
 
 ```
 
-
-
-```{r}
-# Define the model formula (use a simpler model if complex terms are causing issues)
-model_formula <- g ~ edges + degree(1)
-
-# Fit the BTERGM model
-btergm_model <- btergm::btergm(model_formula, R = 1000)
-
-# Run GOF with explicit settings for `target` and increased `nsim`
-fit_gof <- btergm::gof(
-  btergm_model,
-  nsim = 200,  # Increase to see if it resolves the issue
-  target = network_list,
-  statistics = c("degree", "esp", "distance", "triad")
+```{r, fig.width=8, fig.height=6} 
+#only necessary terms to answer research questions
+m3 <- ergm::ergm(
+  g ~ edges + 
+    gwesp(0.5, fixed = TRUE) + 
+    nodecov("alliance_eigenvector") + 
+    edgecov(state_dependency_matrix1) +
+    kstar(2),
+  control = ergm::control.ergm(
+    MCMC.burnin = 5000,
+    MCMC.samplesize = 10000,
+    seed = 123456,
+    MCMLE.maxit = 20,
+    parallel=4
+  )
 )
+summary(m3)
+ergm::mcmc.diagnostics(m3)
 
-# Plot the GOF results
-plot(fit_gof)
+gofm <- ergm::gof(m3)
+snafun::stat_plot_gof(gofm)
 
 ```
 
+```{r, fig.width=8, fig.height=6} 
+m4 <- ergm::ergm(
+  g ~ edges + 
+    gwesp(0.5, fixed = TRUE) + 
+    nodecov("alliance_eigenvector") + 
+    edgecov(state_dependency_matrix1) +
+    kstar(2) +
+    degree(1),
+  control = ergm::control.ergm(
+    MCMC.burnin = 5000,
+    MCMC.samplesize = 10000,
+    seed = 123456,
+    MCMLE.maxit = 20,
+    parallel=4
+  )
+)
+summary(m4)
+ergm::mcmc.diagnostics(m4)
+
+gofm <- ergm::gof(m4)
+snafun::stat_plot_gof(gofm)
+
+```
+
+```{r, fig.width=8, fig.height=6} 
+m5 <- ergm::ergm(
+  g ~ edges + 
+    gwesp(0.5, fixed = TRUE) + 
+    nodecov("alliance_eigenvector") + 
+    edgecov(state_dependency_matrix1) +
+    kstar(2) +
+    degree(1) +
+    gwdsp(0.5, fixed = TRUE),
+  control = ergm::control.ergm(
+    MCMC.burnin = 5000,
+    MCMC.samplesize = 10000,
+    seed = 123456,
+    MCMLE.maxit = 20,
+    parallel=4
+  )
+)
+summary(m5)
+ergm::mcmc.diagnostics(m5)
+
+gofm <- ergm::gof(m5)
+snafun::stat_plot_gof(gofm)
+
+```
 
 
 
