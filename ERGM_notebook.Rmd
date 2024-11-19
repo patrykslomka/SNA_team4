@@ -138,6 +138,18 @@ node_names_with_na <- get.vertex.attribute(rivalry_graph, "vertex.names")[na_ind
 node_names_with_na
 
 ```
+
+```{r}
+rivalryattr <- network::get.vertex.attribute(g, 'estado')
+
+state_counts <- sapply(rivalryattr, function(x) {
+  length(unlist(strsplit(x, ";")))
+})
+
+network::set.vertex.attribute(g, "num_states", state_counts)
+network::get.vertex.attribute(g, "num_states")
+```
+
 ```{r}
 m0 <- ergm::ergm(g ~ edges)
 summary(m0)
@@ -181,14 +193,14 @@ snafun::stat_plot_gof(gofm)
 
 ```
 
-```{r, fig.width=8, fig.height=6} 
+```{r}
 #only necessary terms to answer research questions
 m3 <- ergm::ergm(
   g ~ edges + 
     gwesp(0.5, fixed = TRUE) + 
     nodecov("alliance_eigenvector") + 
     edgecov(state_dependency_matrix1) +
-    kstar(2),
+    kstar(2), 
   control = ergm::control.ergm(
     MCMC.burnin = 5000,
     MCMC.samplesize = 10000,
@@ -202,17 +214,18 @@ ergm::mcmc.diagnostics(m3)
 
 gofm <- ergm::gof(m3)
 snafun::stat_plot_gof(gofm)
-
 ```
 
+
 ```{r, fig.width=8, fig.height=6} 
+#only necessary terms to answer research questions
 m4 <- ergm::ergm(
   g ~ edges + 
     gwesp(0.5, fixed = TRUE) + 
     nodecov("alliance_eigenvector") + 
     edgecov(state_dependency_matrix1) +
     kstar(2) +
-    degree(1),
+    nodecov("num_states"), 
   control = ergm::control.ergm(
     MCMC.burnin = 5000,
     MCMC.samplesize = 10000,
@@ -235,9 +248,9 @@ m5 <- ergm::ergm(
     gwesp(0.5, fixed = TRUE) + 
     nodecov("alliance_eigenvector") + 
     edgecov(state_dependency_matrix1) +
-    kstar(2) +
-    degree(1) +
-    gwdsp(0.5, fixed = TRUE),
+    kstar(2) + 
+    nodecov("num_states") +
+    degree(1),
   control = ergm::control.ergm(
     MCMC.burnin = 5000,
     MCMC.samplesize = 10000,
@@ -248,6 +261,32 @@ m5 <- ergm::ergm(
 )
 summary(m5)
 ergm::mcmc.diagnostics(m5)
+
+gofm <- ergm::gof(m5)
+snafun::stat_plot_gof(gofm)
+
+```
+
+```{r, fig.width=8, fig.height=6} 
+m6 <- ergm::ergm(
+  g ~ edges + 
+    gwesp(0.5, fixed = TRUE) + 
+    nodecov("alliance_eigenvector") + 
+    edgecov(state_dependency_matrix1) +
+    kstar(2) +
+    degree(1) +
+    nodecov("num_states") +
+    gwdsp(0.5, fixed = TRUE),
+  control = ergm::control.ergm(
+    MCMC.burnin = 5000,
+    MCMC.samplesize = 10000,
+    seed = 123456,
+    MCMLE.maxit = 20,
+    parallel=5
+  )
+)
+summary(m6)
+ergm::mcmc.diagnostics(m6)
 
 gofm <- ergm::gof(m5)
 snafun::stat_plot_gof(gofm)
