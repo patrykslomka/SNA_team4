@@ -19,9 +19,13 @@ library(igraph)
 valid_edges <- read.csv("Valid_edges.csv")
 data_combined <- read.csv("vertice_data.csv")
 
-state_dependency_matrix <- readr::read_csv("state_dependency_matrix.csv")
-state_dependency_matrix <- as.matrix(state_dependency_matrix)
-rownames(state_dependency_matrix) <- colnames(state_dependency_matrix)
+state_dependency_matrix_bin <- readr::read_csv("state_dependency_matrix_bin.csv")
+state_dependency_matrix_bin <- as.matrix(state_dependency_matrix_bin)
+rownames(state_dependency_matrix_bin) <- colnames(state_dependency_matrix_bin)
+
+state_dependency_matrix_wei <- readr::read_csv("state_dependency_matrix_wei.csv")
+state_dependency_matrix_wei <- as.matrix(state_dependency_matrix_wei)
+rownames(state_dependency_matrix_wei) <- colnames(state_dependency_matrix_wei)
 ```
 
 
@@ -32,10 +36,10 @@ g <- igraph::graph_from_data_frame(d = rivalry_edges, vertices = data_combined, 
 
 # Identify and remove isolates (nodes with degree zero)
 isolates <- igraph::V(g)[igraph::degree(g) == 0]  # Find nodes with no connections
-g <- igraph::delete_vertices(g, isolates)  # Remove isolates
+g_igraph <- igraph::delete_vertices(g, isolates)  # Remove isolates
 
 # Change to network
-g <- snafun::to_network(g)
+g <- snafun::to_network(g_igraph)
 
 # Filter only alliance relationships
 alliance_edges <- subset(valid_edges, type == "alliance")
@@ -61,7 +65,8 @@ g_alliances_matrix <- g_alliances_matrix[common_rows, common_cols, drop = FALSE]
 (dim(g_alliances_matrix))  # Ensure this matches the dimension of g
 (any(is.na(g_alliances_matrix)))
 
-state_dependency_matrix <- as.matrix(state_dependency_matrix)
+
+state_dependency_matrix <- as.matrix(state_dependency_matrix_bin)
 
 common_rows <- intersect(rownames(state_dependency_matrix), rownames(g_rivalry_matrix))
 common_cols <- intersect(colnames(state_dependency_matrix), colnames(g_rivalry_matrix))
@@ -69,23 +74,35 @@ common_cols <- intersect(colnames(state_dependency_matrix), colnames(g_rivalry_m
 state_dependency_matrix1 <- state_dependency_matrix[common_rows, common_cols, drop = FALSE]
 (dim(state_dependency_matrix1))  # Ensure this matches the dimension of g
 (any(is.na(state_dependency_matrix1)))
+
+
+state_dependency_matrix_wei <- as.matrix(state_dependency_matrix_wei)
+
+common_rows <- intersect(rownames(state_dependency_matrix_wei), rownames(g_rivalry_matrix))
+common_cols <- intersect(colnames(state_dependency_matrix_wei), colnames(g_rivalry_matrix))
+
+state_dependency_matrix2 <- state_dependency_matrix_wei[common_rows, common_cols, drop = FALSE]
+(dim(state_dependency_matrix1))  # Ensure this matches the dimension of g
+(any(is.na(state_dependency_matrix1)))
+
+
+
+
 ```
 
 ```{r}
 # Check node names in alliance network
 alliance_node_names <- network::get.vertex.attribute(g_alliances, "vertex.names")
-print(alliance_node_names)
 
 # Check node names in rivalry network
 rivalry_node_names <- network::get.vertex.attribute(g, "vertex.names")
-print(rivalry_node_names)
 
 # Standardize node names to lowercase and trim any whitespace
 alliance_node_names <- tolower(trimws(alliance_node_names))
 rivalry_node_names <- tolower(trimws(rivalry_node_names))
 
 # Calculate degrees in alliance network
-alliance_degrees <- sna::degree(alliance_net)
+alliance_degrees <- sna::degree(g_alliances)
 
 # Match alliance degrees to node names in rivalry network
 alliance_degrees_matched <- alliance_degrees[match(rivalry_node_names, alliance_node_names)]
@@ -97,14 +114,97 @@ alliance_degrees_matched[is.na(alliance_degrees_matched)] <- 0
 network::set.vertex.attribute(g, "alliance_degree", alliance_degrees_matched)
 ```
 
+```{r Check for similarity between the matrices}
+# Function to calculate Hamming distance
+calculate_hamming_distance <- function(mat1, mat2) {
+  if (!all(dim(mat1) == dim(mat2))) {
+    stop("Matrices must have the same dimensions!")
+  }
+  # Calculate the number of differing entries
+  hamming_distance <- sum(mat1 != mat2)
+  return(hamming_distance)
+}
+
+# Calculate the Hamming distance
+hamming_distance <- calculate_hamming_distance(g_rivalry_matrix, state_dependency_matrix1)
+normalized_hamming_distance <- hamming_distance / (nrow(g_rivalry_matrix) * ncol(state_dependency_matrix1))
+print(paste("Normalized Hamming Distance:", normalized_hamming_distance))
+
+
+# Function to convert an adjacency matrix to an edge list
+matrix_to_edge_list <- function(adj_matrix) {
+  edges <- which(adj_matrix == 1, arr.ind = TRUE)
+  edge_list <- data.frame(from = edges[, 1], to = edges[, 2])
+  # Remove duplicate edges for undirected network
+  edge_list <- edge_list[edge_list$from < edge_list$to, ]
+  return(edge_list)
+}
+
+# Convert matrix to edge list
+edges_state_dependency <- matrix_to_edge_list(state_dependency_matrix1)
+edges_rivalries <- matrix_to_edge_list(g_rivalry_matrix)
+
+
+# Function to calculate Jaccard similarity
+calculate_jaccard <- function(edges1, edges2) {
+  # Ensure edges are sorted (for undirected networks)
+  edges1 <- t(apply(edges1, 1, sort))
+  edges2 <- t(apply(edges2, 1, sort))
+  
+  # Convert to unique sets
+  set1 <- unique(apply(edges1, 1, paste, collapse = "-"))
+  set2 <- unique(apply(edges2, 1, paste, collapse = "-"))
+  print(set1)
+  print(set2)
+  
+  # Compute intersection and union
+  intersection <- length(intersect(set1, set2))
+  union <- length(union(set1, set2))
+  
+  # Calculate Jaccard index
+  jaccard_index <- intersection / union
+  return(jaccard_index)
+}
+
+# Calculate Jaccard similarity between the matrix-based network and the edge list
+jaccard_similarity <- calculate_jaccard(edges_rivalries, edges_state_dependency)
+print(paste("Jaccard Similarity:", jaccard_similarity))
+
+# Function to calculate precision, recall, and F1 score "hemmington"
+evaluate_subset_relationship <- function(edges1, edges2) {
+  # Ensure consistent edge representation (sorting for undirected)
+  edges1 <- t(apply(edges1, 1, sort))
+  edges2 <- t(apply(edges2, 1, sort))
+  
+  # Convert to unique sets of edges
+  set1 <- unique(apply(edges1, 1, paste, collapse = "-"))
+  set2 <- unique(apply(edges2, 1, paste, collapse = "-"))
+  
+  # Compute intersection
+  intersection <- intersect(set1, set2)
+  
+  # Calculate metrics
+  precision <- length(intersection) / length(set2)
+  recall <- length(intersection) / length(set1)
+  f1_score <- ifelse((precision + recall) == 0, 0, 
+                     2 * (precision * recall) / (precision + recall))
+  
+  return(list(Precision = precision, Recall = recall, F1_Score = f1_score))
+}
+
+# Evaluate the metrics
+metrics <- evaluate_subset_relationship(edges_state_dependency, edges_rivalries)
+print(metrics)
+
+
+```
+
 ```{r}
 # Check node names in alliance network
 alliance_node_names <- network::get.vertex.attribute(g_alliances, "vertex.names")
-print(alliance_node_names)
 
 # Check node names in rivalry network
 rivalry_node_names <- network::get.vertex.attribute(g, "vertex.names")
-print(rivalry_node_names)
 
 # Standardize node names to lowercase and trim any whitespace
 alliance_node_names <- tolower(trimws(alliance_node_names))
@@ -134,7 +234,7 @@ alliance_degree <- network::get.vertex.attribute(g, "alliance_degree")
 na_indices <- which(is.na(alliance_degree))
 
 # Print the names or indices of nodes with NA values
-node_names_with_na <- get.vertex.attribute(rivalry_graph, "vertex.names")[na_indices]
+node_names_with_na <- get.vertex.attribute(g_igraph, "vertex.names")[na_indices]
 node_names_with_na
 
 ```
@@ -289,6 +389,57 @@ summary(m6)
 ergm::mcmc.diagnostics(m6)
 
 gofm <- ergm::gof(m5)
+snafun::stat_plot_gof(gofm)
+
+```
+
+```{r, fig.width=8, fig.height=6} 
+m7 <- ergm::ergm(
+  g ~ edges + 
+    gwesp(0.5, fixed = TRUE) + 
+    nodecov("alliance_eigenvector") + 
+    edgecov(state_dependency_matrix2) +
+    kstar(2) +
+    degree(1) +
+    nodecov("num_states") +
+    gwdsp(0.5, fixed = TRUE), #gwdsp doesnt improve the model
+  control = ergm::control.ergm(
+    MCMC.burnin = 5000,
+    MCMC.samplesize = 10000,
+    seed = 123456,
+    MCMLE.maxit = 20,
+    parallel=5
+  )
+)
+summary(m7)
+ergm::mcmc.diagnostics(m7)
+
+gofm <- ergm::gof(m7)
+snafun::stat_plot_gof(gofm)
+
+```
+```{r, fig.width=8, fig.height=6} 
+m8 <- ergm::ergm(
+  g ~ edges + 
+    gwesp(0.5, fixed = TRUE) + 
+    nodecov("alliance_eigenvector") + 
+    edgecov(state_dependency_matrix2) +
+    kstar(2) +
+    degree(1) +
+    nodecov("num_states") +
+    gwdsp(0.5, fixed = TRUE), #gwdsp doesnt improve the model
+  control = ergm::control.ergm(
+    MCMC.burnin = 5000,
+    MCMC.samplesize = 10000,
+    seed = 123456,
+    MCMLE.maxit = 20,
+    parallel=5
+  )
+)
+summary(m8)
+ergm::mcmc.diagnostics(m8)
+
+gofm <- ergm::gof(m8)
 snafun::stat_plot_gof(gofm)
 
 ```
