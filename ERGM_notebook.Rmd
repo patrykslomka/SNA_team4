@@ -225,7 +225,7 @@ m4 <- ergm::ergm(
     nodecov("alliance_eigenvector") + 
     edgecov(state_dependency_matrix1) +
     kstar(2) +
-    nodecov("num_states"), 
+    nodecov("num_states"), #the state dependency matrix is still significant, so we can remove this one
   control = ergm::control.ergm(
     MCMC.burnin = 5000,
     MCMC.samplesize = 10000,
@@ -250,7 +250,7 @@ m5 <- ergm::ergm(
     edgecov(state_dependency_matrix1) +
     kstar(2) + 
     nodecov("num_states") +
-    degree(1),
+    degree(1),#degree improves the model
   control = ergm::control.ergm(
     MCMC.burnin = 5000,
     MCMC.samplesize = 10000,
@@ -276,7 +276,7 @@ m6 <- ergm::ergm(
     kstar(2) +
     degree(1) +
     nodecov("num_states") +
-    gwdsp(0.5, fixed = TRUE),
+    gwdsp(0.5, fixed = TRUE), #gwdsp doesnt improve the model
   control = ergm::control.ergm(
     MCMC.burnin = 5000,
     MCMC.samplesize = 10000,
