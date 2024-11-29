@@ -426,8 +426,7 @@ m8 <- ergm::ergm(
     edgecov(state_dependency_matrix2) +
     kstar(2) +
     degree(1) +
-    nodecov("num_states") +
-    gwdsp(0.5, fixed = TRUE), #gwdsp doesnt improve the model
+    nodecov("num_states"), #gwdsp doesnt improve the model
   control = ergm::control.ergm(
     MCMC.burnin = 5000,
     MCMC.samplesize = 10000,
