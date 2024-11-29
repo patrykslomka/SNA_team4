@@ -421,7 +421,7 @@ snafun::stat_plot_gof(gofm)
 ```{r, fig.width=8, fig.height=6} 
 m8 <- ergm::ergm(
   g ~ edges + 
-    gwesp(0.5, fixed = TRUE) + 
+    gwdsp(0.5, fixed = TRUE) + 
     nodecov("alliance_eigenvector") + 
     edgecov(state_dependency_matrix2) +
     kstar(2) +
@@ -442,6 +442,33 @@ gofm <- ergm::gof(m8)
 snafun::stat_plot_gof(gofm)
 
 ```
+```{r, fig.width=8, fig.height=6} 
+# Normalize the matrix to create a proportional shared state matrix
+normalized_matrix <- state_dependency_matrix2 / max(state_dependency_matrix2)
 
+
+m9 <- ergm::ergm(
+  g ~ edges + 
+    gwdsp(0.5, fixed = TRUE) +
+    nodecov("alliance_eigenvector") + 
+    edgecov(normalized_matrix) +
+    kstar(2) +
+    degree(1) +
+    nodecov("num_states"), #gwdsp doesnt improve the model
+  control = ergm::control.ergm(
+    MCMC.burnin = 5000,
+    MCMC.samplesize = 10000,
+    seed = 123456,
+    MCMLE.maxit = 20,
+    parallel=5
+  )
+)
+summary(m9)
+ergm::mcmc.diagnostics(m9)
+
+gofm <- ergm::gof(m9)
+snafun::stat_plot_gof(gofm)
+
+```
 
 
