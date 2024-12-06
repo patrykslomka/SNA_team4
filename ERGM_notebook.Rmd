@@ -257,7 +257,11 @@ summary(m0)
 ```
 
 ```{r, fig.width=8, fig.height=6}
-m1 <- ergm::ergm((g ~ edges + gwesp(0.5, fixed = TRUE) + edgecov(state_dependency_matrix1) + nodecov("alliance_degree")), control = ergm::control.ergm(MCMC.burnin = 5000,
+m1 <- ergm::ergm((g ~ edges +
+                    gwesp(0.5, fixed = TRUE) +
+                    edgecov(state_dependency_matrix1) +
+                    nodecov("alliance_degree")),
+                 control = ergm::control.ergm(MCMC.burnin = 5000,
                                                MCMC.samplesize = 10000,
                                                seed = 123456,
                                                MCMLE.maxit = 20))
@@ -470,5 +474,7 @@ gofm <- ergm::gof(m9)
 snafun::stat_plot_gof(gofm)
 
 ```
-
+```{r, fig.width=8, fig.height=6}
+texreg::screenreg(list(m1, m2, m3,m4,m5,m6,m7,m8,m9))
+```
 
