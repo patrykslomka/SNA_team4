@@ -418,12 +418,12 @@ snafun::stat_plot_gof(gofm)
 ```{r, fig.width=8, fig.height=6} 
 m8 <- ergm::ergm(
   g ~ edges + 
-    gwdsp(0.5, fixed = TRUE) + # control term
+    gwdsp(0.5, fixed = TRUE) + # RQ1, H1, gwdsp doesn't improve the model
     nodecov("alliance_eigenvector") + # RQ2, H1
     edgecov(state_dependency_matrix2) + # RQ3, H2
     kstar(2) + # RQ2, H3
     degree(1) + # control term
-    nodecov("num_states"), # RQ1, H1, gwdsp doesn't improve the model
+    nodecov("num_states"), # RQ3, H1
   control = ergm::control.ergm(
     MCMC.burnin = 5000,
     MCMC.samplesize = 10000,
@@ -441,6 +441,31 @@ snafun::stat_plot_gof(gofm)
 ```
 
 ```{r, fig.width=8, fig.height=6}
-texreg::screenreg(list(m1, m2, m3,m4,m5,m6,m7,m8))
+m9 <- ergm::ergm(
+  g ~ edges + 
+    gwdsp(0.5, fixed = TRUE) + # RQ1, H1, gwdsp doesn't improve the model
+    nodecov("alliance_eigenvector") + # RQ2, H1
+    nodecov("alliance_degree") + # RQ2, H2
+    kstar(2) + # RQ2, H3
+    nodecov("num_states") + # RQ3, H1
+    edgecov(state_dependency_matrix2) + # RQ3, H2
+    degree(1), # control term
+  control = ergm::control.ergm(
+    MCMC.burnin = 5000,
+    MCMC.samplesize = 10000,
+    seed = 123456,
+    MCMLE.maxit = 20,
+    parallel=5
+  )
+)
+summary(m9)
+ergm::mcmc.diagnostics(m9)
+
+gofm <- ergm::gof(m9)
+snafun::stat_plot_gof(gofm)
+```
+
+```{r, fig.width=8, fig.height=6}
+texreg::screenreg(list(m1, m2, m3,m4,m5,m6,m7,m8,m9))
 ```
 
