@@ -2,7 +2,7 @@
 library(readxl)
 
 # Load the data
-data <- read_excel("C:/Users/timot/Documents/Master data science for business and entrepreneurship/Social network analysis/BACRIM2020-DB.xlsx")
+data <- read_excel("BACRIM2020-DB.xlsx")
 print(colnames(data))
 
 # Combine rows with the same 'grupo'
