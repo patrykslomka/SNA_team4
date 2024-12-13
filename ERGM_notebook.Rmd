@@ -10,10 +10,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r load data}
-library(igraph)
-```
-
 
 ```{r load data}
 valid_edges <- read.csv("Valid_edges.csv")
@@ -43,7 +39,7 @@ g <- snafun::to_network(g_igraph)
 
 # Filter only alliance relationships
 alliance_edges <- subset(valid_edges, type == "alliance")
-g_alliances <- graph_from_data_frame(d = alliance_edges, vertices = data_combined, directed = FALSE)
+g_alliances <- igraph::graph_from_data_frame(d = alliance_edges, vertices = data_combined, directed = FALSE)
 g_alliances <- snafun::to_network(g_alliances)
 ```
 
@@ -84,9 +80,6 @@ common_cols <- intersect(colnames(state_dependency_matrix_wei), colnames(g_rival
 state_dependency_matrix2 <- state_dependency_matrix_wei[common_rows, common_cols, drop = FALSE]
 (dim(state_dependency_matrix1))  # Ensure this matches the dimension of g
 (any(is.na(state_dependency_matrix1)))
-
-
-
 
 ```
 
@@ -234,7 +227,7 @@ alliance_degree <- network::get.vertex.attribute(g, "alliance_degree")
 na_indices <- which(is.na(alliance_degree))
 
 # Print the names or indices of nodes with NA values
-node_names_with_na <- get.vertex.attribute(g_igraph, "vertex.names")[na_indices]
+node_names_with_na <- igraph::get.vertex.attribute(g_igraph, "vertex.names")[na_indices]
 node_names_with_na
 
 ```
@@ -258,9 +251,9 @@ summary(m0)
 
 ```{r, fig.width=8, fig.height=6}
 m1 <- ergm::ergm((g ~ edges +
-                    gwesp(0.5, fixed = TRUE) +
-                    edgecov(state_dependency_matrix1) +
-                    nodecov("alliance_degree")),
+                    gwesp(0.5, fixed = TRUE) + # control term
+                    edgecov(state_dependency_matrix1) + # RQ3, H2
+                    nodecov("alliance_degree")), # RQ2, H1
                  control = ergm::control.ergm(MCMC.burnin = 5000,
                                                MCMC.samplesize = 10000,
                                                seed = 123456,
@@ -276,12 +269,12 @@ snafun::stat_plot_gof(gofm)
 ```{r, fig.width=8, fig.height=6}
 m2 <- ergm::ergm(
   g ~ edges + 
-    gwesp(0.5, fixed = TRUE) + 
-    degree(1) + 
-    gwdsp(0.5, fixed = TRUE) + 
-    nodecov("alliance_eigenvector") + 
-    nodecov("alliance_degree") +
-    edgecov(state_dependency_matrix1),
+    gwesp(0.5, fixed = TRUE) + #control term
+    degree(1) + # control term
+    gwdsp(0.5, fixed = TRUE) + # RQ1, H1
+    nodecov("alliance_eigenvector") + # RQ2, H1
+    nodecov("alliance_degree") + # RQ2, H2
+    edgecov(state_dependency_matrix1), # RQ3, H2
   control = ergm::control.ergm(
     MCMC.burnin = 5000,
     MCMC.samplesize = 10000,
@@ -301,10 +294,10 @@ snafun::stat_plot_gof(gofm)
 #only necessary terms to answer research questions
 m3 <- ergm::ergm(
   g ~ edges + 
-    gwesp(0.5, fixed = TRUE) + 
-    nodecov("alliance_eigenvector") + 
-    edgecov(state_dependency_matrix1) +
-    kstar(2), 
+    gwesp(0.5, fixed = TRUE) + # control term
+    nodecov("alliance_eigenvector") + # RQ2, H1
+    edgecov(state_dependency_matrix1) + # RQ3, H2
+    kstar(2), # RQ2, H3
   control = ergm::control.ergm(
     MCMC.burnin = 5000,
     MCMC.samplesize = 10000,
@@ -325,11 +318,11 @@ snafun::stat_plot_gof(gofm)
 #only necessary terms to answer research questions
 m4 <- ergm::ergm(
   g ~ edges + 
-    gwesp(0.5, fixed = TRUE) + 
-    nodecov("alliance_eigenvector") + 
-    edgecov(state_dependency_matrix1) +
-    kstar(2) +
-    nodecov("num_states"), #the state dependency matrix is still significant, so we can remove this one
+    gwesp(0.5, fixed = TRUE) + # control term
+    nodecov("alliance_eigenvector") + # RQ2, H1
+    edgecov(state_dependency_matrix1) + # RQ3, H2
+    kstar(2) + # RQ2, H3
+    nodecov("num_states"), # RQ3, H1 #the state dependency matrix is still significant, so we can remove this one
   control = ergm::control.ergm(
     MCMC.burnin = 5000,
     MCMC.samplesize = 10000,
@@ -349,12 +342,12 @@ snafun::stat_plot_gof(gofm)
 ```{r, fig.width=8, fig.height=6} 
 m5 <- ergm::ergm(
   g ~ edges + 
-    gwesp(0.5, fixed = TRUE) + 
-    nodecov("alliance_eigenvector") + 
-    edgecov(state_dependency_matrix1) +
-    kstar(2) + 
-    nodecov("num_states") +
-    degree(1),#degree improves the model
+    gwesp(0.5, fixed = TRUE) + # control term
+    nodecov("alliance_eigenvector") + # RQ2, H1
+    edgecov(state_dependency_matrix1) + # RQ3, H2
+    kstar(2) + # RQ2, H3
+    nodecov("num_states") + # RQ3, H1
+    degree(1), # control term
   control = ergm::control.ergm(
     MCMC.burnin = 5000,
     MCMC.samplesize = 10000,
@@ -374,13 +367,13 @@ snafun::stat_plot_gof(gofm)
 ```{r, fig.width=8, fig.height=6} 
 m6 <- ergm::ergm(
   g ~ edges + 
-    gwesp(0.5, fixed = TRUE) + 
-    nodecov("alliance_eigenvector") + 
-    edgecov(state_dependency_matrix1) +
-    kstar(2) +
-    degree(1) +
-    nodecov("num_states") +
-    gwdsp(0.5, fixed = TRUE), #gwdsp doesnt improve the model
+    gwesp(0.5, fixed = TRUE) + # control term
+    nodecov("alliance_eigenvector") + # RQ2, H1
+    edgecov(state_dependency_matrix1) + # RQ3, H2
+    kstar(2) + # RQ2, H3
+    degree(1) + # control term
+    nodecov("num_states") + # RQ3, H1
+    gwdsp(0.5, fixed = TRUE), # RQ1, H1, gwdsp doesn't improve the model
   control = ergm::control.ergm(
     MCMC.burnin = 5000,
     MCMC.samplesize = 10000,
@@ -400,13 +393,13 @@ snafun::stat_plot_gof(gofm)
 ```{r, fig.width=8, fig.height=6} 
 m7 <- ergm::ergm(
   g ~ edges + 
-    gwesp(0.5, fixed = TRUE) + 
-    nodecov("alliance_eigenvector") + 
-    edgecov(state_dependency_matrix2) +
-    kstar(2) +
-    degree(1) +
-    nodecov("num_states") +
-    gwdsp(0.5, fixed = TRUE), #gwdsp doesnt improve the model
+    gwesp(0.5, fixed = TRUE) + # control term
+    nodecov("alliance_eigenvector") + # RQ2, H1
+    edgecov(state_dependency_matrix2) + # RQ3, H2
+    kstar(2) + # RQ2, H3
+    degree(1) + # control term
+    nodecov("num_states") + # RQ3, H1
+    gwdsp(0.5, fixed = TRUE), # RQ1, H1, gwdsp doesn't improve the model
   control = ergm::control.ergm(
     MCMC.burnin = 5000,
     MCMC.samplesize = 10000,
@@ -420,17 +413,17 @@ ergm::mcmc.diagnostics(m7)
 
 gofm <- ergm::gof(m7)
 snafun::stat_plot_gof(gofm)
-
 ```
+
 ```{r, fig.width=8, fig.height=6} 
 m8 <- ergm::ergm(
   g ~ edges + 
-    gwdsp(0.5, fixed = TRUE) + 
-    nodecov("alliance_eigenvector") + 
-    edgecov(state_dependency_matrix2) +
-    kstar(2) +
-    degree(1) +
-    nodecov("num_states"), #gwdsp doesnt improve the model
+    gwdsp(0.5, fixed = TRUE) + # control term
+    nodecov("alliance_eigenvector") + # RQ2, H1
+    edgecov(state_dependency_matrix2) + # RQ3, H2
+    kstar(2) + # RQ2, H3
+    degree(1) + # control term
+    nodecov("num_states"), # RQ1, H1, gwdsp doesn't improve the model
   control = ergm::control.ergm(
     MCMC.burnin = 5000,
     MCMC.samplesize = 10000,
@@ -446,35 +439,8 @@ gofm <- ergm::gof(m8)
 snafun::stat_plot_gof(gofm)
 
 ```
-```{r, fig.width=8, fig.height=6} 
-# Normalize the matrix to create a proportional shared state matrix
-normalized_matrix <- state_dependency_matrix2 / max(state_dependency_matrix2)
 
-
-m9 <- ergm::ergm(
-  g ~ edges + 
-    gwdsp(0.5, fixed = TRUE) +
-    nodecov("alliance_eigenvector") + 
-    edgecov(normalized_matrix) +
-    kstar(2) +
-    degree(1) +
-    nodecov("num_states"), #gwdsp doesnt improve the model
-  control = ergm::control.ergm(
-    MCMC.burnin = 5000,
-    MCMC.samplesize = 10000,
-    seed = 123456,
-    MCMLE.maxit = 20,
-    parallel=5
-  )
-)
-summary(m9)
-ergm::mcmc.diagnostics(m9)
-
-gofm <- ergm::gof(m9)
-snafun::stat_plot_gof(gofm)
-
-```
 ```{r, fig.width=8, fig.height=6}
-texreg::screenreg(list(m1, m2, m3,m4,m5,m6,m7,m8,m9))
+texreg::screenreg(list(m1, m2, m3,m4,m5,m6,m7,m8))
 ```
 
