@@ -253,7 +253,7 @@ summary(m0)
 m1 <- ergm::ergm((g ~ edges +
                     gwesp(0.5, fixed = TRUE) + # control term
                     edgecov(state_dependency_matrix1) + # RQ3, H2
-                    nodecov("alliance_degree")), # RQ2, H1
+                    nodecov("alliance_degree")), # RQ2, H2
                  control = ergm::control.ergm(MCMC.burnin = 5000,
                                                MCMC.samplesize = 10000,
                                                seed = 123456,
