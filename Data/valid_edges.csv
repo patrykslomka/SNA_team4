@@ -1,0 +1,179 @@
+from,to,type
+ACME,Cártel Jalisco Nueva Generación (CJNG),alliance
+ACME,La Unión Tepito,alliance
+ACME,Cártel de Tláhuac,alliance
+CJNG Comando la Mancha,Cártel Jalisco Nueva Generación (CJNG),alliance
+CJNG Comando la Mancha,Cártel de Sinaloa,rivalry
+Caballeros Templarios,La Nueva Familia Michoacana,alliance
+Caballeros Templarios,Guerreros Unidos,rivalry
+Cártel Jalisco Nueva Generación (CJNG),Los Cabos,alliance
+Cártel Jalisco Nueva Generación (CJNG),La Unión Tepito,alliance
+Cártel Jalisco Nueva Generación (CJNG),Cártel de Tláhuac,alliance
+Cártel Jalisco Nueva Generación (CJNG),Fuerza Anti-Unión Tepito,alliance
+Cártel Jalisco Nueva Generación (CJNG),U o la UVA,alliance
+Cártel Jalisco Nueva Generación (CJNG),La Anti-Unión o La Rosa Nueva,alliance
+Cártel Jalisco Nueva Generación (CJNG),Los Cuinis,alliance
+Cártel Jalisco Nueva Generación (CJNG),La Unión León,alliance
+Cártel Jalisco Nueva Generación (CJNG),Los Tlacos (Cartel de la Sierra),alliance
+Cártel Jalisco Nueva Generación (CJNG),Cártel Zicuirán Nueva Generación,alliance
+Cártel Jalisco Nueva Generación (CJNG),Los Colombianos,alliance
+Cártel Jalisco Nueva Generación (CJNG),Los Metros,alliance
+Cártel Jalisco Nueva Generación (CJNG),Los Piña,alliance
+Cártel Jalisco Nueva Generación (CJNG),Cártel de Sinaloa,rivalry
+Cártel Jalisco Nueva Generación (CJNG),Cártel de Los Arellano Félix,rivalry
+Cártel Jalisco Nueva Generación (CJNG),La Nueva Familia Michoacana,rivalry
+Cártel Jalisco Nueva Generación (CJNG),El Cano,rivalry
+Cártel Jalisco Nueva Generación (CJNG),Caballeros Templarios,rivalry
+Cártel Jalisco Nueva Generación (CJNG),La Barredora 24/7,rivalry
+Cártel Jalisco Nueva Generación (CJNG),Cártel de Santa Rosa de Lima,rivalry
+Cártel Jalisco Nueva Generación (CJNG),Cártel Nueva Plaza,rivalry
+Cártel Jalisco Nueva Generación (CJNG),Cárteles Unidos,rivalry
+Cártel Jalisco Nueva Generación (CJNG),Zetas Vieja Escuela,rivalry
+Cártel Jalisco Nueva Generación (CJNG),Los Mayas,rivalry
+Cártel Jalisco Nueva Generación (CJNG),Guerreros Unidos,rivalry
+Cártel Jalisco Nueva Generación (CJNG),Los Blancos de Troya,rivalry
+Cártel Jalisco Nueva Generación (CJNG),Cártel de Telpacatepec,rivalry
+Cártel Jalisco Nueva Generación (CJNG),Los Viagras,rivalry
+Cártel Jalisco Nueva Generación (CJNG),Los Rojos,rivalry
+Cártel Jalisco Nueva Generación (CJNG),Los Tlahuicas,rivalry
+Cártel Jalisco Nueva Generación (CJNG),Cártel del Noreste,rivalry
+Cártel Jalisco Nueva Generación (CJNG),Cártel del Golfo,rivalry
+Cártel Jalisco Nueva Generación (CJNG),Los Zetas,rivalry
+Cártel Los Epitacio,Cártel de Oaxaca,alliance
+Cártel Nueva Plaza,Cártel de Sinaloa,alliance
+Cártel Pura Gente Nueva,Los Zetas,alliance
+Cártel San Luis Potosí Nueva Generación (CSLPNG),Cártel del Golfo,rivalry
+Cártel San Luis Potosí Nueva Generación (CSLPNG),Zetas Vieja Escuela,rivalry
+Cártel de Caborca,La Barredora 24/7,alliance
+Cártel de Caborca,Los Páez,alliance
+Cártel de Caborca,Cártel de Sinaloa / Los Chapitos,rivalry
+Cártel de Caborca,Cártel de Sinaloa,rivalry
+Cártel de Juárez,Cártel de Sinaloa,rivalry
+Cártel de Los Alemanes,Zetas Vieja Escuela,alliance
+Cártel de Los Alemanes,Cártel del Golfo,rivalry
+Cártel de Los Tequileros,Cártel Jalisco Nueva Generación (CJNG),alliance
+Cártel de Los Tequileros,La Nueva Familia Michoacana,rivalry
+Cártel de Santa Rosa de Lima,La Unión León,rivalry
+Cártel de Sinaloa,Los R4,alliance
+Cártel de Sinaloa,La banda de El Tigre,alliance
+Cártel de Sinaloa,Los Erres,alliance
+Cártel de Sinaloa,Los Cabrera,alliance
+Cártel de Sinaloa,Cártel de Santa Rosa de Lima,alliance
+Cártel de Sinaloa,Los Salazares,alliance
+Cártel de Sinaloa,Gente Nueva,alliance
+Cártel de Sinaloa,Cártel de Los Arellano Félix,rivalry
+Cártel de Sinaloa,Cártel Tijuana Nueva Generación,rivalry
+Cártel de Sinaloa,"Célula liderada por Alfonso Arzate García, El Aquiles",rivalry
+Cártel de Sinaloa,La Nueva Familia Michoacana,rivalry
+Cártel de Sinaloa,Cártel de Sinaloa / Los Chapitos,rivalry
+Cártel de Sinaloa / Los Chapitos,"Célula liderada por Alfonso Arzate García, El Aquiles",alliance
+Cártel de Sinaloa / Los Chapitos,Los Chimales,alliance
+Cártel de Sinaloa / Los Chapitos,Gente Nueva,alliance
+Cártel de Sinaloa / Los Chapitos,Durangos/Cazadores,alliance
+Cártel de Sinaloa / Los Chapitos,Los Dámasos/Fuerzas especiales Dámaso,rivalry
+Cártel de Sinaloa / Los Chapitos,Los Rusos,rivalry
+Cártel de Tláhuac,La Unión Tepito,rivalry
+Cártel de los Beltrán Leyva,Cártel del Noreste,rivalry
+Cártel de los Beltrán Leyva,Cártel Jalisco Nueva Generación (CJNG),rivalry
+Cártel del Abuelo,Cártel Jalisco Nueva Generación (CJNG),alliance
+Cártel del Abuelo,Los Viagras,alliance
+Cártel del Golfo,Los Pelones,alliance
+Cártel del Golfo,Grupo Sombra,alliance
+Cártel del Golfo,Cártel del Noreste,rivalry
+Cártel del Golfo,Los Zetas,rivalry
+Cártel del Golfo Nueva Era,Cártel del Golfo,rivalry
+Cártel del Noreste,Los Zetas,alliance
+Cártel del Noreste,Los Treviño,alliance
+Cártel del Noreste,Tropa del Infierno,alliance
+Cártel del Noreste,Los Talibanes,alliance
+Cártel del Noreste,Zetas Vieja Escuela,rivalry
+Cártel del Noreste,Los Metros,rivalry
+Cártel del Poniente o La Laguna,Cártel de Sinaloa,alliance
+Cártel del Sur,Los Tlacos (Cartel de la Sierra),rivalry
+Cárteles Unidos,Los Ántrax,alliance
+Cárteles Unidos,Mando Sur Gente Nueva,alliance
+Célula liderada por El Balín,Cártel Jalisco Nueva Generación (CJNG),alliance
+Ejército Revolucionario del Pueblo Insurgente (ERPI),Guerreros Unidos,rivalry
+El Jardinero,Cártel Jalisco Nueva Generación (CJNG),alliance
+El Jardinero,Los Cabrera,rivalry
+El Pechugas,La Unión Tepito,alliance
+El Robert,La Unión Tepito,alliance
+El Robert,Cártel Jalisco Nueva Generación (CJNG),rivalry
+El Señor de la V,Los Rojos,rivalry
+El Señorón,Cártel Jalisco Nueva Generación (CJNG),rivalry
+El Temerario,Los Rojos,rivalry
+"Francisco Javier Arvizo Márquez, El Jaguar",Cártel de Sinaloa,alliance
+"Francisco Javier Arvizo Márquez, El Jaguar",Cártel de Juárez,rivalry
+"Francisco Javier Arvizo Márquez, El Jaguar",La Línea,rivalry
+Fuerza Anti-Unión Tepito,La Unión Tepito,rivalry
+Fuerza Anti-Unión Tepito,La Nueva Familia Michoacana,rivalry
+Gente Nueva,Los Salgueiro,alliance
+Gente Nueva,Los Lobos,alliance
+Gente Nueva,Los Jaguares,alliance
+Gente Nueva,Cártel de Juárez,rivalry
+Gente Nueva,La Línea,rivalry
+Guerreros Unidos,La Nueva Familia Michoacana,rivalry
+Guerreros Unidos,Los Rojos,rivalry
+Güero Fresa,Cártel Jalisco Nueva Generación (CJNG),alliance
+Güero Fresa,Cártel de Tláhuac,rivalry
+Juan Balta,La Unión Tepito,rivalry
+"Juan L. (El Moco), líder huachicolero",El Loco Téllez,alliance
+La Anti-Unión o La Rosa Nueva,La Unión Tepito,rivalry
+La Banda del Bucanas,Cártel Jalisco Nueva Generación (CJNG),alliance
+La Bandera,Los Tlacos (Cartel de la Sierra),rivalry
+La Emperatriz,Cártel de Sinaloa,alliance
+La Guera,Cártel de Sinaloa,alliance
+La Línea,Cártel de Juárez,alliance
+La Línea,Cártel de Sinaloa,rivalry
+La Nueva Familia Michoacana,Los Blancos de Troya,alliance
+La Nueva Familia Michoacana,Los Viagras,alliance
+La Nueva Familia Michoacana,Los Mayas,alliance
+"La Reina del Sur, Cecilia “V""",El Loco Téllez,alliance
+La Tripa,Los Rojos,rivalry
+La Unión Tepito,Los Mojarras,alliance
+La banda de El Tigre,Cártel Tijuana Nueva Generación,rivalry
+Lenin Canchola,Maestrin,rivalry
+Los Ardillos,Los Rojos,rivalry
+Los Artistas Asesinos o Doble A,Cártel de Sinaloa,alliance
+Los Cabos,Cártel de Sinaloa,rivalry
+Los Cabos,Cártel de Los Arellano Félix,rivalry
+Los Cabrera,Cártel Jalisco Nueva Generación (CJNG),rivalry
+Los Durangos,Cártel Jalisco Nueva Generación (CJNG),alliance
+Los Dámasos/Fuerzas especiales Dámaso,Cártel Jalisco Nueva Generación (CJNG),alliance
+Los Estúpidos,Los Rodolfos,rivalry
+Los Guerreros,Cártel Jalisco Nueva Generación (CJNG),alliance
+Los Jaguares,Cártel de Sinaloa,alliance
+Los Jaguares,Los Lobos,alliance
+Los Linos,Los Rojos,rivalry
+Los Lobos,Cártel de Sinaloa,alliance
+Los Mayas,Los Rojos,rivalry
+Los Mexicles,Cártel de Sinaloa,alliance
+Los Mojarras,Sindicato Libertad,alliance
+Los Ninis,Cártel de Sinaloa / Los Chapitos,alliance
+Los R4,Cártel Tijuana Nueva Generación,rivalry
+Los Rodolfos,Cártel Jalisco Nueva Generación (CJNG),alliance
+Los Rusos,Cártel de Sinaloa,alliance
+Los Rusos,Los Ninis,rivalry
+Los Salgueiro,Cártel de Sinaloa,alliance
+Los Siete Demonios,Cártel de Sinaloa,alliance
+Los Sinaloas,La Unión Tepito,rivalry
+Los Talibanes,Cártel del Golfo,alliance
+Los Talibanes,Cártel Jalisco Nueva Generación (CJNG),alliance
+Los Viagras,Caballeros Templarios,rivalry
+Los Zetas,Grupo Sombra,rivalry
+MZ,Cártel de Sinaloa,alliance
+Maestrin,La Unión Tepito,rivalry
+Mazatlecos,Cártel de los Beltrán Leyva,alliance
+Nuevo Cártel de Juárez,Cártel Jalisco Nueva Generación (CJNG),alliance
+Nuevo Cártel de Juárez,Gente Nueva,rivalry
+Nuevo Cártel de Juárez,"Francisco Javier Arvizo Márquez, El Jaguar",rivalry
+Paco Pacas,La Nueva Familia Michoacana,alliance
+Sangre Nueva Zeta,Los Zetas,rivalry
+Tercera Acción Destructiva (3AD),La Unión Tepito,alliance
+Tropa del Infierno,Zetas Vieja Escuela,rivalry
+Tropa del Infierno,Cártel del Golfo,rivalry
+Tropa del Infierno,Cártel Jalisco Nueva Generación (CJNG),rivalry
+Zetas Vieja Escuela,Los Pelones,alliance
+Zetas Vieja Escuela,Los Talibanes,alliance
+Zetas Vieja Escuela,Cártel del Golfo,rivalry
+Zetas Vieja Escuela,Grupo Sombra,rivalry
