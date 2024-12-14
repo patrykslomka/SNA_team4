@@ -1,0 +1,151 @@
+---
+title: "Data Preparation Network Visualization with Both Alliances and Rivalries Edges"
+output: html_notebook
+---
+
+```{r, load data}
+# Load the data using readxl
+data <- readxl::read_excel("Data/BACRIM2020-DB.xlsx")
+```
+
+```{r, data cleaning}
+# Combine rows with the same 'grupo'
+unique_groups <- unique(data$grupo)
+data_combined <- data.frame(grupo = unique_groups)
+
+# Function to aggregate columns by concatenation or logical OR
+aggregate_column <- function(group, column, unique_values = FALSE) {
+  group_data <- data[data$grupo == group, column, drop = TRUE]
+  group_data <- stats::na.omit(group_data)
+  if (unique_values) {
+    unique_vals <- unique(unlist(strsplit(paste(group_data, collapse = ";"), ";")))
+    return(paste(unique_vals, collapse = ";"))
+  } else {
+    return(ifelse(any(group_data == 1, na.rm = TRUE), 1, 0))
+  }
+}
+
+# Populate the combined dataset
+for (group in unique_groups) {
+  data_combined[data_combined$grupo == group, "aliados"] <- aggregate_column(group, "aliados", TRUE)
+  data_combined[data_combined$grupo == group, "rivales"] <- aggregate_column(group, "rivales", TRUE)
+  data_combined[data_combined$grupo == group, "persona"] <- aggregate_column(group, "persona", TRUE)
+  data_combined[data_combined$grupo == group, "número_de_rivales"] <- aggregate_column(group, "número de rivales")
+  data_combined[data_combined$grupo == group, "actividades_delictivas"] <- aggregate_column(group, "actividades_delictivas")
+  data_combined[data_combined$grupo == group, "narcotrafico"] <- aggregate_column(group, "narcotrafico")
+  data_combined[data_combined$grupo == group, "conflictos_armados"] <- aggregate_column(group, "conflictos_armados")
+  data_combined[data_combined$grupo == group, "presencia_noviolenta"] <- aggregate_column(group, "presencia_noviolenta")
+  data_combined[data_combined$grupo == group, "accion_guber"] <- aggregate_column(group, "accion_guber")
+  data_combined[data_combined$grupo == group, "otros"] <- aggregate_column(group, "otros")
+}
+```
+
+```{r, prepare edges}
+# Prepare edges for alliances and rivalries
+edges <- list()
+row_index <- 1
+
+for (i in seq_len(nrow(data_combined))) {
+  cartel <- data_combined$grupo[i]
+  
+  # Process allies
+  if (!is.na(data_combined$aliados[i]) && data_combined$aliados[i] != "") {
+    allies <- strsplit(data_combined$aliados[i], ";")[[1]]
+    for (ally in allies) {
+      edges[[row_index]] <- c(from = cartel, to = ally, type = "alliance")
+      row_index <- row_index + 1
+    }
+  }
+  
+  # Process rivals
+  if (!is.na(data_combined$rivales[i]) && data_combined$rivales[i] != "") {
+    rivals <- strsplit(data_combined$rivales[i], ";")[[1]]
+    for (rival in rivals) {
+      edges[[row_index]] <- c(from = cartel, to = rival, type = "rivalry")
+      row_index <- row_index + 1
+    }
+  }
+}
+
+# Convert edges to a data frame
+edges_df <- do.call(rbind, edges)
+edges_df <- as.data.frame(edges_df)
+
+# Sort 'from' and 'to' columns lexicographically for each row
+edges_df$from_sorted <- apply(edges_df[, c("from", "to")], 1, min)
+edges_df$to_sorted <- apply(edges_df[, c("from", "to")], 1, max)
+
+# Drop duplicate edges
+valid_edges <- unique(edges_df[, c("from_sorted", "to_sorted", "type")])
+colnames(valid_edges) <- c("from", "to", "type")
+```
+
+```{r, create graph}
+# Create graph with unique `grupo` as vertices
+g <- igraph::graph_from_data_frame(d = valid_edges, vertices = data_combined, directed = FALSE)
+```
+
+```{r, plot graph}
+# Plot the network without labels and with smaller vertices
+snafun::plot(g, vertex.label = NA, vertex.size = 5, 
+             edge.color = ifelse(igraph::E(g)$type == "alliance", "blue", "red"),
+             main = "Cartel Network (Alliances and Rivalries)")
+```
+
+```{r, community detection}
+# Create a subgraph with only rivalry edges
+rivalry_graph <- igraph::subgraph.edges(g, igraph::E(g)[igraph::E(g)$type == "rivalry"])
+
+# Remove unconnected nodes from the rivalry-only subgraph
+g_no_unconnected_nodes <- igraph::delete.vertices(rivalry_graph, which(igraph::degree(rivalry_graph) == 0))
+
+# Apply community detection using the Louvain method
+communities <- igraph::cluster_louvain(g_no_unconnected_nodes)
+
+# Assign each node a unique color based on its community membership
+community_colors <- grDevices::rainbow(length(unique(igraph::membership(communities))))
+igraph::V(g_no_unconnected_nodes)$color <- community_colors[igraph::membership(communities)]
+
+# Adjust node sizes based on degree
+igraph::V(g_no_unconnected_nodes)$size <- igraph::degree(g_no_unconnected_nodes, mode = "all") * 0.5 + 5
+
+# Set edge colors with transparency
+igraph::E(g_no_unconnected_nodes)$color <- ifelse(igraph::E(g_no_unconnected_nodes)$type == "alliance", grDevices::adjustcolor("blue", alpha.f = 0.5), grDevices::adjustcolor("red", alpha.f = 0.5))
+igraph::E(g_no_unconnected_nodes)$curved <- 0.1  # Reduce edge curvature
+
+# Set background color
+graphics::par(bg = "lightgray")
+igraph::V(g_no_unconnected_nodes)$label.color <- "black"  # Set label color to black for visibility
+
+# Plot the network with improved visualization
+snafun::plot(
+  g_no_unconnected_nodes,
+  vertex.label = ifelse(igraph::degree(g_no_unconnected_nodes) > 10, igraph::V(g_no_unconnected_nodes)$name, NA),  # Display labels for nodes with high degree
+  vertex.label.cex = 0.8,                          # Increase label size
+  vertex.label.dist = 0.5,                         # Adjust label offset
+  vertex.size = igraph::V(g_no_unconnected_nodes)$size,    # Set node size by degree
+  layout = igraph::layout_with_fr(g_no_unconnected_nodes, niter = 10000, area = 30 * igraph::vcount(g_no_unconnected_nodes)^2),  # Fruchterman-Reingold layout
+  main = "Cartel Network with Alliances and Rivalries"
+)
+
+# Add a legend for community colors
+graphics::legend(
+  "topright",
+  legend = paste("Community", 1:length(unique(igraph::membership(communities)))),
+  col = community_colors,
+  pch = 19,           # Use filled circles in legend
+  title = "Cartel Communities",
+  cex = 0.8           # Adjust legend size for readability
+)
+
+# Add a legend for edge colors
+graphics::legend(
+  "bottomright",
+  legend = c("Alliance", "Rivalry"),
+  col = c("blue", "red"),
+  lwd = 2,             # Line width for edge type in legend
+  title = "Relationship Type",
+  cex = 0.8            # Adjust legend size for readability
+)
+```
+
