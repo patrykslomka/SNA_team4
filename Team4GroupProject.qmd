@@ -651,15 +651,23 @@ The open problem that still remains is connected with the incompleteness of data
 
 ## Appendix A: Data Manipulation
 ```{r}
-# Required packages
+# Check and install missing packages
 required_packages <- c("readxl", "ggplot2", "igraph", "ggcorrplot")
+missing_packages <- setdiff(required_packages, installed.packages()[, "Package"])
+if (length(missing_packages) > 0) {
+  install.packages(missing_packages)
+}
 
-# Install missing packages
-install.packages(setdiff(required_packages, installed.packages()[,"Package"]))
+# Load required libraries
+library(readxl)
+library(ggplot2)
+library(igraph)
+library(ggcorrplot)
 
 # Load the data
 data <- readxl::read_excel("Data/BACRIM2020-DB.xlsx")
 print(colnames(data))
+
 # Summary of the dataset
 cat("Summary of dataset:\n")
 print(summary(data))
@@ -748,7 +756,6 @@ snafun::stat_plot_gof(gofm)
 ```
 \pagebreak
 ```{r, fig.width=0.5, fig.height=1}
-cat("Table 1: ERGM Model Results for Models 1-3")
 texreg::screenreg(
   list(m1, m2, m3),
   custom.model.names = c("Model 1", "Model 2", "Model 3")
@@ -787,3 +794,16 @@ texreg::screenreg(
 cat("Table 4: ERGM Model Results for Models 7-9")
 ```
 
+## Appendix C: ERGM Terms
+
+| Term                             | RQ       | Hypothesis       | Role                                                                 | Interpretation                                                                                                                                                                                                 |
+|----------------------------------|----------|------------------|----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| edges                            | All      | Baseline         | Captures the baseline likelihood of rivalry ties forming             | Negative coefficient indicates rivalry ties are less likely to form without other structural or covariate effects.                                                                                           |
+| gwdsp.fixed.0.5                  | RQ1      | Hypothesis 1.1   | Captures the influence of indirect ties (paths of length 2)          | Positive coefficient indicates that indirect connections (e.g., common enemies) reduce rivalry formation.                                                                                                   |
+| nodecov.alliance_degree          | RQ2      | Hypothesis 2.2   | Measures the direct connections of a cartel in the alliance network  | Positive coefficient suggests cartels with more alliances tend to have more rivals.                                                                                                                          |
+| nodecov.alliance_eigenvector     | RQ2      | Hypothesis 2.1   | Tests whether broader influence in the alliance network impacts rivalry formation | Not significant, indicating broader influence is less impactful than direct connections.                                                                               |
+| kstar2                           | RQ2      | Hypothesis 2.3   | Measures structural aggressiveness through shared ties               | Negative coefficient shows cartels avoid multi-party conflicts (e.g., multi-party conflicts), preferring hierarchical structures.                                                                             |
+| nodecov.num_states               | RQ3      | Hypothesis 3.1   | Measures geographic reach by counting the states a cartel is active in | Not significant, suggesting that cross-state activity does not strongly predict rivalry formation.                                                                                                           |
+| edgecov.state_dependency_matrix2 | RQ3      | Hypothesis 3.2   | Captures the effect of geographic proximity on rivalry formation     | Positive coefficient indicates cartels in the same state are more likely to become rivals.                                                                                                                   |
+| degree1                          | Control  | Control          | Control variable to account for peripheral cartels                   | Positive coefficient suggests low-degree nodes still influence rivalry formation.                                                                                                                            |
+| gwesp(0.5)                       | Control  | Control          | Clustering                                                           | Not significant; clustering does not play a major role in rivalry formation.                                                                                                                                 |
