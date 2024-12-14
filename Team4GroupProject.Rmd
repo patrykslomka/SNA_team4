@@ -44,8 +44,8 @@ g <- snafun::to_network(g_igraph)
 
 # Subset alliance relationships from the dataset and convert to a network object.
 alliance_edges <- subset(valid_edges, type == "alliance")
-g_alliances <- igraph::graph_from_data_frame(d = alliance_edges, vertices = data_combined, directed = FALSE)
-g_alliances <- snafun::to_network(g_alliances)
+g_alliances_i <- igraph::graph_from_data_frame(d = alliance_edges, vertices = data_combined, directed = FALSE)
+g_alliances <- snafun::to_network(g_alliances_i)
 ```
 
 ```{r}
@@ -53,8 +53,30 @@ g_alliances <- snafun::to_network(g_alliances)
 # Rivalries Network
 snafun::g_summary(g)
 
+# Set edge colors for Rivalries
+igraph::E(g_igraph)$color <- "red"
+
+# Plot Rivalries Network
+snafun::plot(g_igraph, 
+             vertex.label = NA, 
+             vertex.size = 7, 
+             edge.color = igraph::E(g_igraph)$color, 
+             main = "Cartel Network Rivalries")
+
+
 # Alliances Network
 snafun::g_summary(g_alliances)
+
+# Set edge colors for Alliances
+igraph::E(g_alliances_i)$color <- "blue"
+
+# Plot Alliances Network
+snafun::plot(g_alliances_i, 
+             vertex.label = NA, 
+             vertex.size = 7, 
+             edge.color = igraph::E(g_alliances_i)$color, 
+             main = "Cartel Network Alliances")
+
 ```
 The rivalry network is sparsely connected and exhibits low clustering. However, all nodes are engaged in at least one rivalry, and every rivalry is mutual as our network is undirected. The infinite mean distance indicates disconnected subgroups, which might represent distinct clusters or factions within the cartels. These properties suggest a fragmented yet competitive network of cartel rivalries.
 
