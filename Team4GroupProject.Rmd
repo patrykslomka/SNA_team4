@@ -14,16 +14,16 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r load data}
 # Load data for valid edges (clean data) and vertex attributes.
-valid_edges <- read.csv("Valid_edges.csv")
-data_combined <- read.csv("vertice_data.csv")
+valid_edges <- read.csv("Data/valid_edges.csv")
+data_combined <- read.csv("Data/vertice_data.csv")
 
 # Load binary state dependency matrix and convert it to a matrix.
-state_dependency_matrix_bin <- readr::read_csv("state_dependency_matrix_bin.csv")
+state_dependency_matrix_bin <- readr::read_csv("Data/state_dependency_matrix_bin.csv")
 state_dependency_matrix_bin <- as.matrix(state_dependency_matrix_bin)
 rownames(state_dependency_matrix_bin) <- colnames(state_dependency_matrix_bin)
 
 # Load weighted state dependency matrix and convert it to a matrix.
-state_dependency_matrix_wei <- readr::read_csv("state_dependency_matrix_wei.csv")
+state_dependency_matrix_wei <- readr::read_csv("Data/state_dependency_matrix_wei.csv")
 state_dependency_matrix_wei <- as.matrix(state_dependency_matrix_wei)
 rownames(state_dependency_matrix_wei) <- colnames(state_dependency_matrix_wei)
 ```
@@ -470,4 +470,3 @@ snafun::stat_plot_gof(gofm)
 # Compare the models using the screenreg function
 texreg::screenreg(list(m1, m2, m3,m4,m5,m6,m7,m8,m9))
 ```
-
