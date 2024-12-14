@@ -91,7 +91,9 @@ snafun::plot(g, vertex.label = NA, vertex.size = 5,
              edge.color = ifelse(igraph::E(g)$type == "alliance", "blue", "red"),
              main = "Cartel Network (Alliances and Rivalries)")
 ```
-
+```{r, Network Exploration}
+snafun::g_summary(g)
+```
 ```{r, community detection}
 # Create a subgraph with only rivalry edges
 rivalry_graph <- igraph::subgraph.edges(g, igraph::E(g)[igraph::E(g)$type == "rivalry"])
