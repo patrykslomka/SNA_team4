@@ -56,6 +56,34 @@ ggplot(data.frame(Degree = degree_distribution), aes(x = Degree)) +
   geom_histogram(bins = 20, fill = "darkorange", color = "black") +
   labs(title = "Degree Distribution of Rivalry Network", x = "Degree", y = "Frequency")
 
+# Extract binary columns related to cartel activities
+activity_columns <- c("actividades_delictivas", "narcotrafico", 
+                      "conflictos_armados", "presencia_noviolenta", 
+                      "accion_guber", "otros")
+
+# Mapping of Spanish to English
+translations <- c(
+  actividades_delictivas = "Criminal Activities",
+  narcotrafico = "Drug Trafficking",
+  conflictos_armados = "Armed Conflicts",
+  presencia_noviolenta = "Non-violent Presence",
+  accion_guber = "Government Actions",
+  otros = "Others"
+)
+
+# Subset activity columns and translate their names
+activity_matrix <- data_combined[, activity_columns]
+colnames(activity_matrix) <- translations[colnames(activity_matrix)]
+
+# Compute correlation matrix
+activity_correlation <- cor(activity_matrix, use = "pairwise.complete.obs")
+
+# Plot the heatmap
+ggcorrplot::ggcorrplot(activity_correlation, 
+                       method = "square", 
+                       lab = TRUE, 
+                       title = "Correlation Matrix of Cartel Activities")
+
 # Combine rows with the same 'grupo'
 unique_groups <- unique(data$grupo)
 data_combined <- data.frame(grupo = unique_groups)
