@@ -56,6 +56,9 @@ snafun::g_summary(g)
 # Alliances Network
 snafun::g_summary(g_alliances)
 ```
+The rivalry network is sparsely connected and exhibits low clustering. However, all nodes are engaged in at least one rivalry, and every rivalry is mutual as our network is undirected. The infinite mean distance indicates disconnected subgroups, which might represent distinct clusters or factions within the cartels. These properties suggest a fragmented yet competitive network of cartel rivalries.
+
+The alliances network is highly fragmented and sparsely connected. While all alliances are mutual since this is an undirected network, the network contains a large proportion of isolates (40%), indicating that many cartels operate independently without forming alliances. The low transitivity (3.4%) suggests weak clustering and cooperation between groups, and the infinite mean distance points to disconnected subgroups or isolated clusters. Overall, this network reflects a limited and fragmented system of cooperation among cartels.
 
 ```{r}
 # Convert the alliance network to a matrix and check its dimensions and for any missing values.
