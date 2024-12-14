@@ -7,18 +7,22 @@ output: html_document
 
 
 ```{r setup, include=FALSE}
+# Ensuring that code chunks are echoed in the output.
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
 ```{r load data}
+# Load data for valid edges (clean data) and vertex attributes.
 valid_edges <- read.csv("Valid_edges.csv")
 data_combined <- read.csv("vertice_data.csv")
 
+# Load binary state dependency matrix and convert it to a matrix.
 state_dependency_matrix_bin <- readr::read_csv("state_dependency_matrix_bin.csv")
 state_dependency_matrix_bin <- as.matrix(state_dependency_matrix_bin)
 rownames(state_dependency_matrix_bin) <- colnames(state_dependency_matrix_bin)
 
+# Load weighted state dependency matrix and convert it to a matrix.
 state_dependency_matrix_wei <- readr::read_csv("state_dependency_matrix_wei.csv")
 state_dependency_matrix_wei <- as.matrix(state_dependency_matrix_wei)
 rownames(state_dependency_matrix_wei) <- colnames(state_dependency_matrix_wei)
@@ -27,88 +31,87 @@ rownames(state_dependency_matrix_wei) <- colnames(state_dependency_matrix_wei)
 
 
 ```{r pressure, echo=FALSE}
+# Subset the rivalry edges from the dataset.
 rivalry_edges <- subset(valid_edges, type == "rivalry")
 g <- igraph::graph_from_data_frame(d = rivalry_edges, vertices = data_combined, directed = FALSE)
 
-# Identify and remove isolates (nodes with degree zero)
+# Identify and remove isolated nodes (nodes with no connections).
 isolates <- igraph::V(g)[igraph::degree(g) == 0]  # Find nodes with no connections
 g_igraph <- igraph::delete_vertices(g, isolates)  # Remove isolates
 
-# Change to network
+# Convert the igraph object to a network object for further analysis.
 g <- snafun::to_network(g_igraph)
 
-# Filter only alliance relationships
+# Subset alliance relationships from the dataset and convert to a network object.
 alliance_edges <- subset(valid_edges, type == "alliance")
 g_alliances <- igraph::graph_from_data_frame(d = alliance_edges, vertices = data_combined, directed = FALSE)
 g_alliances <- snafun::to_network(g_alliances)
 ```
 
 ```{r}
+# Convert the alliance network to a matrix and check its dimensions and for any missing values.
 g_alliances_matrix <- as.matrix(g_alliances)
-(dim(g_alliances_matrix))  # Ensure this matches the dimension of g
+(dim(g_alliances_matrix))
 (any(is.na(g_alliances_matrix)))
 
+# Convert the rivalry network to a matrix and check its dimensions and for any missing values.
 g_rivalry_matrix <- as.matrix(g)
 (dim(g_rivalry_matrix))  # Ensure this matches the dimension of g
 (any(is.na(g_rivalry_matrix)))
 
-# Step 1: Identify the common rows and columns
+# Identify common rows and columns between the alliance and rivalry matrices to ensure compatibility.
 common_rows <- intersect(rownames(g_alliances_matrix), rownames(g_rivalry_matrix))
 common_cols <- intersect(colnames(g_alliances_matrix), colnames(g_rivalry_matrix))
 
-# Step 2: Subset both matrices to keep only the common rows and columns
+# Subset the alliance matrix to include only the common rows and columns.
 g_alliances_matrix <- g_alliances_matrix[common_rows, common_cols, drop = FALSE]
 (dim(g_alliances_matrix))  # Ensure this matches the dimension of g
 (any(is.na(g_alliances_matrix)))
 
-
+# Convert the binary state dependency matrix to a matrix format.
 state_dependency_matrix <- as.matrix(state_dependency_matrix_bin)
 
+# Identify common rows and columns between the binary state dependency matrix and the rivalry matrix.
 common_rows <- intersect(rownames(state_dependency_matrix), rownames(g_rivalry_matrix))
 common_cols <- intersect(colnames(state_dependency_matrix), colnames(g_rivalry_matrix))
 
+# Subset the binary state dependency matrix to include only the common rows and columns.
 state_dependency_matrix1 <- state_dependency_matrix[common_rows, common_cols, drop = FALSE]
 (dim(state_dependency_matrix1))  # Ensure this matches the dimension of g
 (any(is.na(state_dependency_matrix1)))
 
 
+# Convert the weighted state dependency matrix to a matrix format.
 state_dependency_matrix_wei <- as.matrix(state_dependency_matrix_wei)
 
+# Identify common rows and columns between the weighted state dependency matrix and the rivalry matrix.
 common_rows <- intersect(rownames(state_dependency_matrix_wei), rownames(g_rivalry_matrix))
 common_cols <- intersect(colnames(state_dependency_matrix_wei), colnames(g_rivalry_matrix))
 
+# Subset the weighted state dependency matrix to include only the common rows and columns.
 state_dependency_matrix2 <- state_dependency_matrix_wei[common_rows, common_cols, drop = FALSE]
 (dim(state_dependency_matrix1))  # Ensure this matches the dimension of g
 (any(is.na(state_dependency_matrix1)))
-
 ```
 
 ```{r}
-# Check node names in alliance network
+# Match node attributes (alliance degree) from the alliance network to the rivalry network.
 alliance_node_names <- network::get.vertex.attribute(g_alliances, "vertex.names")
-
-# Check node names in rivalry network
 rivalry_node_names <- network::get.vertex.attribute(g, "vertex.names")
 
-# Standardize node names to lowercase and trim any whitespace
+# Standardize node names for consistency (e.g., lowercase, no whitespace).
 alliance_node_names <- tolower(trimws(alliance_node_names))
 rivalry_node_names <- tolower(trimws(rivalry_node_names))
 
-# Calculate degrees in alliance network
+# Calculate alliance degrees and assign them to the rivalry network, filling missing values with 0.
 alliance_degrees <- sna::degree(g_alliances)
-
-# Match alliance degrees to node names in rivalry network
 alliance_degrees_matched <- alliance_degrees[match(rivalry_node_names, alliance_node_names)]
-
-# Replace any NAs with 0 to ensure complete data
 alliance_degrees_matched[is.na(alliance_degrees_matched)] <- 0
-
-# Assign the matched alliance degree to rivalry network
 network::set.vertex.attribute(g, "alliance_degree", alliance_degrees_matched)
 ```
 
 ```{r Check for similarity between the matrices}
-# Function to calculate Hamming distance
+# Define a function to calculate Hamming distance and normalize it.
 calculate_hamming_distance <- function(mat1, mat2) {
   if (!all(dim(mat1) == dim(mat2))) {
     stop("Matrices must have the same dimensions!")
@@ -124,7 +127,7 @@ normalized_hamming_distance <- hamming_distance / (nrow(g_rivalry_matrix) * ncol
 print(paste("Normalized Hamming Distance:", normalized_hamming_distance))
 
 
-# Function to convert an adjacency matrix to an edge list
+# Convert adjacency matrices to edge lists and compute Jaccard similarity.
 matrix_to_edge_list <- function(adj_matrix) {
   edges <- which(adj_matrix == 1, arr.ind = TRUE)
   edge_list <- data.frame(from = edges[, 1], to = edges[, 2])
@@ -163,7 +166,7 @@ calculate_jaccard <- function(edges1, edges2) {
 jaccard_similarity <- calculate_jaccard(edges_rivalries, edges_state_dependency)
 print(paste("Jaccard Similarity:", jaccard_similarity))
 
-# Function to calculate precision, recall, and F1 score "hemmington"
+# Evaluate precision, recall, and F1 score between edge sets.
 evaluate_subset_relationship <- function(edges1, edges2) {
   # Ensure consistent edge representation (sorting for undirected)
   edges1 <- t(apply(edges1, 1, sort))
@@ -188,12 +191,10 @@ evaluate_subset_relationship <- function(edges1, edges2) {
 # Evaluate the metrics
 metrics <- evaluate_subset_relationship(edges_state_dependency, edges_rivalries)
 print(metrics)
-
-
 ```
 
 ```{r}
-# Check node names in alliance network
+# Assign eigenvector centrality from alliance network to rivalry network.
 alliance_node_names <- network::get.vertex.attribute(g_alliances, "vertex.names")
 
 # Check node names in rivalry network
@@ -204,8 +205,7 @@ alliance_node_names <- tolower(trimws(alliance_node_names))
 rivalry_node_names <- tolower(trimws(rivalry_node_names))
 
 # Convert alliance network to igraph to calculate eigenvector centrality
-library(intergraph)
-alliance_igraph <- asIgraph(g_alliances)
+alliance_igraph <- intergraph::asIgraph(g_alliances)
 
 # Calculate eigenvector centrality in the alliance network
 alliance_eigenvector <- igraph::eigen_centrality(alliance_igraph)$vector
@@ -233,6 +233,7 @@ node_names_with_na
 ```
 
 ```{r}
+# Count states each cartel is active in and assign the attribute to the rivalry network.
 rivalryattr <- network::get.vertex.attribute(g, 'estado')
 
 state_counts <- sapply(rivalryattr, function(x) {
@@ -244,6 +245,7 @@ network::get.vertex.attribute(g, "num_states")
 ```
 
 ```{r}
+# start ERGM modeling
 m0 <- ergm::ergm(g ~ edges)
 summary(m0)
 
