@@ -2,7 +2,16 @@
 title: "Team Assignment - Team 4"
 authors: "Hanuye Wang (2129151), Shaghi Sharifian (2123294), Timo Timmermans (2052302), Vietlinh Pham (2148460), Patryk Slomka (2049498)"
 date: "2024-12-14"
-format: html
+format:
+  pdf:
+    documentclass: article
+    header-includes:
+      - \usepackage{fancyhdr} % Load the fancyhdr package
+      - \pagestyle{fancy} % Enable fancy page style
+      - \fancyhf{} % Clear all default header/footer settings
+      - \fancyhead[R]{\thepage} % Add page numbers to the top-right corner
+      - \renewcommand{\headrulewidth}{0pt} % Remove the horizontal line in the header
+      - \renewcommand{\footrulewidth}{0pt} % Remove the horizontal line in the footer
 toc: true
 bibliography: references.bib
 ---
