@@ -57,9 +57,11 @@ The dataset that the paper addresses was obtained from the official website of M
 
 By taking into account the territory size and armed conflicts between cartels, such insight could imply that cartels controlling larger territory are more inclined to engage in conflicts with their competitors. Having all that in mind, the dataset brings lots of value in determining cartels’ behavior on various fronts and the reasons for the fights among them. The dataset can provide evidence and support for the phenomena of cartel dynamics and their behavior. By answering the crucial research questions stated in this research, it can help scholars gain more in-depth knowledge about organized crime. However, potential biases must be taken into consideration. Due to the fact that cartels don’t openly publish information about their activities, the sources we used might be distorted or incomplete. This can have a potentially negative impact on the results that we obtained from our research, by giving misleading information about the cartel dynamics. It is therefore crucial to acknowledge those limitations. All things considered, the dataset that we analyzed is a useful tool for investigating the world of Mexican cartels, that provides details about their partnerships and rivalries. Based on our findings, researchers could better understand the factors affecting the cartel behavior and the potential consequences for the law enforcement and policymakers not only in Mexico, but around the globe.
 
-![Number of cartels per state](Figures/Figure1.jpg)
+![Number of cartels per state](Figures/Figure1.jpeg)
 
-![Correlation matrix of cartel unlawful activities](Figures/Figure2.png)
+![Correlation matrix of cartel unlawful activities](Figures/Figure2.jpeg)
+
+![Degree Distribution of Rivalrly Network](Figures/Figure3.jpeg)
 
 # Research Rationale
 
@@ -116,7 +118,7 @@ The geodesic distance map reveals that the distribution of the simulated network
 
 ### 2. Model Analysis
 
-According to Figure 4, the estimated value of edges is -3.69 and the p-value is less than 0.001, which means that after many iterations, the network is still very sparse. The edge term describes the overall tendency of rivalry ties to form, independent of other structural or covariate terms. Its negative coefficient suggests that rivalry relationships are generally unlikely to form in the network. These conflicts do not happen randomly and instead require the influence of other structural patterns or covariates.
+According to Figure 5, the estimated value of edges is -3.69 and the p-value is less than 0.001, which means that after many iterations, the network is still very sparse. The edge term describes the overall tendency of rivalry ties to form, independent of other structural or covariate terms. Its negative coefficient suggests that rivalry relationships are generally unlikely to form in the network. These conflicts do not happen randomly and instead require the influence of other structural patterns or covariates.
 
 Gwdsp coefficient of 0.621 indicates a strong clustering effect. The low standard error of 0.178 also confirms its reliability. This high positive coefficient indicates that the nodes play an important role in the network structure by sharing indirect connections formed by enemies. Agglomeration effects show that rivalry networks may be driven by common enemies, forming more complex indirect interactions rather than a single direct conflict.
 
