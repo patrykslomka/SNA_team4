@@ -1,9 +1,5 @@
-# Load necessary library for reading and writing Excel files
-library(readxl)
-library(openxlsx)
-
 # Load the data
-data <- read_excel("BACRIM2020-DB.xlsx")
+data <- readxl::read_excel("Data/BACRIM2020-DB.xlsx")
 
 # Ensure the 'estado' column contains the states in a format that can be split
 data$estado[is.na(data$estado)] <- ""  # Fill any NA with an empty string
@@ -29,6 +25,7 @@ rownames(state_matrix_df) <- NULL
 
 # Save the result to an Excel file
 output_path <- "groups_with_state_dummies.xlsx"
-write.xlsx(state_matrix_df, output_path, rowNames = FALSE)
+openxlsx::write.xlsx(state_matrix_df, output_path, rowNames = FALSE)
 
 cat(paste("File saved as", output_path), "\n")
+
