@@ -293,7 +293,6 @@ snafun::stat_plot_gof(gofm)
 ```
 
 ```{r}
-#only necessary terms to answer research questions
 m3 <- ergm::ergm(
   g ~ edges + 
     gwesp(0.5, fixed = TRUE) + # control term
@@ -317,7 +316,6 @@ snafun::stat_plot_gof(gofm)
 
 
 ```{r, fig.width=8, fig.height=6} 
-#only necessary terms to answer research questions
 m4 <- ergm::ergm(
   g ~ edges + 
     gwesp(0.5, fixed = TRUE) + # control term
@@ -375,7 +373,7 @@ m6 <- ergm::ergm(
     kstar(2) + # RQ2, H3
     degree(1) + # control term
     nodecov("num_states") + # RQ3, H1
-    gwdsp(0.5, fixed = TRUE), # RQ1, H1, gwdsp doesn't improve the model
+    gwdsp(0.5, fixed = TRUE), # RQ1, H1
   control = ergm::control.ergm(
     MCMC.burnin = 5000,
     MCMC.samplesize = 10000,
@@ -401,7 +399,7 @@ m7 <- ergm::ergm(
     kstar(2) + # RQ2, H3
     degree(1) + # control term
     nodecov("num_states") + # RQ3, H1
-    gwdsp(0.5, fixed = TRUE), # RQ1, H1, gwdsp doesn't improve the model
+    gwdsp(0.5, fixed = TRUE), # RQ1, H1
   control = ergm::control.ergm(
     MCMC.burnin = 5000,
     MCMC.samplesize = 10000,
@@ -420,7 +418,7 @@ snafun::stat_plot_gof(gofm)
 ```{r, fig.width=8, fig.height=6} 
 m8 <- ergm::ergm(
   g ~ edges + 
-    gwdsp(0.5, fixed = TRUE) + # RQ1, H1, gwdsp doesn't improve the model
+    gwdsp(0.5, fixed = TRUE) + # RQ1, H1
     nodecov("alliance_eigenvector") + # RQ2, H1
     edgecov(state_dependency_matrix2) + # RQ3, H2
     kstar(2) + # RQ2, H3
@@ -443,9 +441,10 @@ snafun::stat_plot_gof(gofm)
 ```
 
 ```{r, fig.width=8, fig.height=6}
+# The last model includes all of the terms related to research questions and hypotheses and one control term.
 m9 <- ergm::ergm(
   g ~ edges + 
-    gwdsp(0.5, fixed = TRUE) + # RQ1, H1, gwdsp doesn't improve the model
+    gwdsp(0.5, fixed = TRUE) + # RQ1, H1
     nodecov("alliance_eigenvector") + # RQ2, H1
     nodecov("alliance_degree") + # RQ2, H2
     kstar(2) + # RQ2, H3
@@ -468,6 +467,7 @@ snafun::stat_plot_gof(gofm)
 ```
 
 ```{r, fig.width=8, fig.height=6}
+# Compare the models using the screenreg function
 texreg::screenreg(list(m1, m2, m3,m4,m5,m6,m7,m8,m9))
 ```
 
