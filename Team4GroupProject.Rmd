@@ -1,7 +1,7 @@
 ---
-title: "ERGM_team"
-author: "Timo Timmermans"
-date: "2024-11-13"
+title: "Team Assignment - Team 4"
+authors: "Hanuye Wang (2129151), Shaghi Sharifian (2123294), Timo Timmermans (2052302), Vietlinh Pham (2148460), Patryk Slomka (2049498)"
+date: "2024-12-14"
 output: html_document
 ---
 
