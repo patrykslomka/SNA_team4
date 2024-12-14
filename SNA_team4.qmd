@@ -2,16 +2,7 @@
 title: "Team Assignment - Team 4"
 authors: "Hanuye Wang (2129151), Shaghi Sharifian (2123294), Timo Timmermans (2052302), Vietlinh Pham (2148460), Patryk Slomka (2049498)"
 date: "2024-12-14"
-format:
-  pdf:
-    documentclass: article
-    header-includes:
-      - \usepackage{fancyhdr} % Load the fancyhdr package
-      - \pagestyle{fancy} % Enable fancy page style
-      - \fancyhf{} % Clear all default header/footer settings
-      - \fancyhead[R]{\thepage} % Add page numbers to the top-right corner
-      - \renewcommand{\headrulewidth}{0pt} % Remove the horizontal line in the header
-      - \renewcommand{\footrulewidth}{0pt} % Remove the horizontal line in the footer
+format: html
 toc: true
 bibliography: references.bib
 ---
@@ -155,4 +146,29 @@ The open problem that still remains is connected with the incompleteness of data
 
 # Appendices
 
+## ERGM
+
 ![](Figures/Table2.png)
+
+## Code
+
+```{r setup, include=FALSE}
+# Ensuring that code chunks are echoed in the output.
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load data}
+# Load data for valid edges (clean data) and vertex attributes.
+valid_edges <- read.csv("Data/valid_edges.csv")
+data_combined <- read.csv("Data/vertice_data.csv")
+
+# Load binary state dependency matrix and convert it to a matrix.
+state_dependency_matrix_bin <- readr::read_csv("Data/state_dependency_matrix_bin.csv")
+state_dependency_matrix_bin <- as.matrix(state_dependency_matrix_bin)
+rownames(state_dependency_matrix_bin) <- colnames(state_dependency_matrix_bin)
+
+# Load weighted state dependency matrix and convert it to a matrix.
+state_dependency_matrix_wei <- readr::read_csv("Data/state_dependency_matrix_wei.csv")
+state_dependency_matrix_wei <- as.matrix(state_dependency_matrix_wei)
+rownames(state_dependency_matrix_wei) <- colnames(state_dependency_matrix_wei)
+```
