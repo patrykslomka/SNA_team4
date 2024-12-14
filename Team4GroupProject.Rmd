@@ -1,0 +1,473 @@
+---
+title: "ERGM_team"
+author: "Timo Timmermans"
+date: "2024-11-13"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+# Ensuring that code chunks are echoed in the output.
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r load data}
+# Load data for valid edges (clean data) and vertex attributes.
+valid_edges <- read.csv("Valid_edges.csv")
+data_combined <- read.csv("vertice_data.csv")
+
+# Load binary state dependency matrix and convert it to a matrix.
+state_dependency_matrix_bin <- readr::read_csv("state_dependency_matrix_bin.csv")
+state_dependency_matrix_bin <- as.matrix(state_dependency_matrix_bin)
+rownames(state_dependency_matrix_bin) <- colnames(state_dependency_matrix_bin)
+
+# Load weighted state dependency matrix and convert it to a matrix.
+state_dependency_matrix_wei <- readr::read_csv("state_dependency_matrix_wei.csv")
+state_dependency_matrix_wei <- as.matrix(state_dependency_matrix_wei)
+rownames(state_dependency_matrix_wei) <- colnames(state_dependency_matrix_wei)
+```
+
+
+
+```{r pressure, echo=FALSE}
+# Subset the rivalry edges from the dataset.
+rivalry_edges <- subset(valid_edges, type == "rivalry")
+g <- igraph::graph_from_data_frame(d = rivalry_edges, vertices = data_combined, directed = FALSE)
+
+# Identify and remove isolated nodes (nodes with no connections).
+isolates <- igraph::V(g)[igraph::degree(g) == 0]  # Find nodes with no connections
+g_igraph <- igraph::delete_vertices(g, isolates)  # Remove isolates
+
+# Convert the igraph object to a network object for further analysis.
+g <- snafun::to_network(g_igraph)
+
+# Subset alliance relationships from the dataset and convert to a network object.
+alliance_edges <- subset(valid_edges, type == "alliance")
+g_alliances <- igraph::graph_from_data_frame(d = alliance_edges, vertices = data_combined, directed = FALSE)
+g_alliances <- snafun::to_network(g_alliances)
+```
+
+```{r}
+# Convert the alliance network to a matrix and check its dimensions and for any missing values.
+g_alliances_matrix <- as.matrix(g_alliances)
+(dim(g_alliances_matrix))
+(any(is.na(g_alliances_matrix)))
+
+# Convert the rivalry network to a matrix and check its dimensions and for any missing values.
+g_rivalry_matrix <- as.matrix(g)
+(dim(g_rivalry_matrix))  # Ensure this matches the dimension of g
+(any(is.na(g_rivalry_matrix)))
+
+# Identify common rows and columns between the alliance and rivalry matrices to ensure compatibility.
+common_rows <- intersect(rownames(g_alliances_matrix), rownames(g_rivalry_matrix))
+common_cols <- intersect(colnames(g_alliances_matrix), colnames(g_rivalry_matrix))
+
+# Subset the alliance matrix to include only the common rows and columns.
+g_alliances_matrix <- g_alliances_matrix[common_rows, common_cols, drop = FALSE]
+(dim(g_alliances_matrix))  # Ensure this matches the dimension of g
+(any(is.na(g_alliances_matrix)))
+
+# Convert the binary state dependency matrix to a matrix format.
+state_dependency_matrix <- as.matrix(state_dependency_matrix_bin)
+
+# Identify common rows and columns between the binary state dependency matrix and the rivalry matrix.
+common_rows <- intersect(rownames(state_dependency_matrix), rownames(g_rivalry_matrix))
+common_cols <- intersect(colnames(state_dependency_matrix), colnames(g_rivalry_matrix))
+
+# Subset the binary state dependency matrix to include only the common rows and columns.
+state_dependency_matrix1 <- state_dependency_matrix[common_rows, common_cols, drop = FALSE]
+(dim(state_dependency_matrix1))  # Ensure this matches the dimension of g
+(any(is.na(state_dependency_matrix1)))
+
+
+# Convert the weighted state dependency matrix to a matrix format.
+state_dependency_matrix_wei <- as.matrix(state_dependency_matrix_wei)
+
+# Identify common rows and columns between the weighted state dependency matrix and the rivalry matrix.
+common_rows <- intersect(rownames(state_dependency_matrix_wei), rownames(g_rivalry_matrix))
+common_cols <- intersect(colnames(state_dependency_matrix_wei), colnames(g_rivalry_matrix))
+
+# Subset the weighted state dependency matrix to include only the common rows and columns.
+state_dependency_matrix2 <- state_dependency_matrix_wei[common_rows, common_cols, drop = FALSE]
+(dim(state_dependency_matrix1))  # Ensure this matches the dimension of g
+(any(is.na(state_dependency_matrix1)))
+```
+
+```{r}
+# Match node attributes (alliance degree) from the alliance network to the rivalry network.
+alliance_node_names <- network::get.vertex.attribute(g_alliances, "vertex.names")
+rivalry_node_names <- network::get.vertex.attribute(g, "vertex.names")
+
+# Standardize node names for consistency (e.g., lowercase, no whitespace).
+alliance_node_names <- tolower(trimws(alliance_node_names))
+rivalry_node_names <- tolower(trimws(rivalry_node_names))
+
+# Calculate alliance degrees and assign them to the rivalry network, filling missing values with 0.
+alliance_degrees <- sna::degree(g_alliances)
+alliance_degrees_matched <- alliance_degrees[match(rivalry_node_names, alliance_node_names)]
+alliance_degrees_matched[is.na(alliance_degrees_matched)] <- 0
+network::set.vertex.attribute(g, "alliance_degree", alliance_degrees_matched)
+```
+
+```{r Check for similarity between the matrices}
+# Define a function to calculate Hamming distance and normalize it.
+calculate_hamming_distance <- function(mat1, mat2) {
+  if (!all(dim(mat1) == dim(mat2))) {
+    stop("Matrices must have the same dimensions!")
+  }
+  # Calculate the number of differing entries
+  hamming_distance <- sum(mat1 != mat2)
+  return(hamming_distance)
+}
+
+# Calculate the Hamming distance
+hamming_distance <- calculate_hamming_distance(g_rivalry_matrix, state_dependency_matrix1)
+normalized_hamming_distance <- hamming_distance / (nrow(g_rivalry_matrix) * ncol(state_dependency_matrix1))
+print(paste("Normalized Hamming Distance:", normalized_hamming_distance))
+
+
+# Convert adjacency matrices to edge lists and compute Jaccard similarity.
+matrix_to_edge_list <- function(adj_matrix) {
+  edges <- which(adj_matrix == 1, arr.ind = TRUE)
+  edge_list <- data.frame(from = edges[, 1], to = edges[, 2])
+  # Remove duplicate edges for undirected network
+  edge_list <- edge_list[edge_list$from < edge_list$to, ]
+  return(edge_list)
+}
+
+# Convert matrix to edge list
+edges_state_dependency <- matrix_to_edge_list(state_dependency_matrix1)
+edges_rivalries <- matrix_to_edge_list(g_rivalry_matrix)
+
+
+# Function to calculate Jaccard similarity
+calculate_jaccard <- function(edges1, edges2) {
+  # Ensure edges are sorted (for undirected networks)
+  edges1 <- t(apply(edges1, 1, sort))
+  edges2 <- t(apply(edges2, 1, sort))
+  
+  # Convert to unique sets
+  set1 <- unique(apply(edges1, 1, paste, collapse = "-"))
+  set2 <- unique(apply(edges2, 1, paste, collapse = "-"))
+  print(set1)
+  print(set2)
+  
+  # Compute intersection and union
+  intersection <- length(intersect(set1, set2))
+  union <- length(union(set1, set2))
+  
+  # Calculate Jaccard index
+  jaccard_index <- intersection / union
+  return(jaccard_index)
+}
+
+# Calculate Jaccard similarity between the matrix-based network and the edge list
+jaccard_similarity <- calculate_jaccard(edges_rivalries, edges_state_dependency)
+print(paste("Jaccard Similarity:", jaccard_similarity))
+
+# Evaluate precision, recall, and F1 score between edge sets.
+evaluate_subset_relationship <- function(edges1, edges2) {
+  # Ensure consistent edge representation (sorting for undirected)
+  edges1 <- t(apply(edges1, 1, sort))
+  edges2 <- t(apply(edges2, 1, sort))
+  
+  # Convert to unique sets of edges
+  set1 <- unique(apply(edges1, 1, paste, collapse = "-"))
+  set2 <- unique(apply(edges2, 1, paste, collapse = "-"))
+  
+  # Compute intersection
+  intersection <- intersect(set1, set2)
+  
+  # Calculate metrics
+  precision <- length(intersection) / length(set2)
+  recall <- length(intersection) / length(set1)
+  f1_score <- ifelse((precision + recall) == 0, 0, 
+                     2 * (precision * recall) / (precision + recall))
+  
+  return(list(Precision = precision, Recall = recall, F1_Score = f1_score))
+}
+
+# Evaluate the metrics
+metrics <- evaluate_subset_relationship(edges_state_dependency, edges_rivalries)
+print(metrics)
+```
+
+```{r}
+# Assign eigenvector centrality from alliance network to rivalry network.
+alliance_node_names <- network::get.vertex.attribute(g_alliances, "vertex.names")
+
+# Check node names in rivalry network
+rivalry_node_names <- network::get.vertex.attribute(g, "vertex.names")
+
+# Standardize node names to lowercase and trim any whitespace
+alliance_node_names <- tolower(trimws(alliance_node_names))
+rivalry_node_names <- tolower(trimws(rivalry_node_names))
+
+# Convert alliance network to igraph to calculate eigenvector centrality
+alliance_igraph <- intergraph::asIgraph(g_alliances)
+
+# Calculate eigenvector centrality in the alliance network
+alliance_eigenvector <- igraph::eigen_centrality(alliance_igraph)$vector
+
+# Match alliance eigenvector centrality to node names in rivalry network
+alliance_eigenvector_matched <- alliance_eigenvector[match(rivalry_node_names, alliance_node_names)]
+
+# Replace any NAs with 0 to ensure complete data
+alliance_eigenvector_matched[is.na(alliance_eigenvector_matched)] <- 0
+
+# Assign the matched alliance eigenvector centrality to the rivalry network
+network::set.vertex.attribute(g, "alliance_eigenvector", alliance_eigenvector_matched)
+```
+
+```{r}
+# Retrieve the alliance_degree attribute
+alliance_degree <- network::get.vertex.attribute(g, "alliance_degree")
+# Find indices of nodes with NA in alliance_degree
+na_indices <- which(is.na(alliance_degree))
+
+# Print the names or indices of nodes with NA values
+node_names_with_na <- igraph::get.vertex.attribute(g_igraph, "vertex.names")[na_indices]
+node_names_with_na
+
+```
+
+```{r}
+# Count states each cartel is active in and assign the attribute to the rivalry network.
+rivalryattr <- network::get.vertex.attribute(g, 'estado')
+
+state_counts <- sapply(rivalryattr, function(x) {
+  length(unlist(strsplit(x, ";")))
+})
+
+network::set.vertex.attribute(g, "num_states", state_counts)
+network::get.vertex.attribute(g, "num_states")
+```
+
+```{r}
+# start ERGM modeling
+m0 <- ergm::ergm(g ~ edges)
+summary(m0)
+
+```
+
+```{r, fig.width=8, fig.height=6}
+m1 <- ergm::ergm((g ~ edges +
+                    gwesp(0.5, fixed = TRUE) + # control term
+                    edgecov(state_dependency_matrix1) + # RQ3, H2
+                    nodecov("alliance_degree")), # RQ2, H2
+                 control = ergm::control.ergm(MCMC.burnin = 5000,
+                                               MCMC.samplesize = 10000,
+                                               seed = 123456,
+                                               MCMLE.maxit = 20))
+summary(m1)
+ergm::mcmc.diagnostics(m1)
+
+gofm <- ergm::gof(m1)
+snafun::stat_plot_gof(gofm)
+
+```
+
+```{r, fig.width=8, fig.height=6}
+m2 <- ergm::ergm(
+  g ~ edges + 
+    gwesp(0.5, fixed = TRUE) + #control term
+    degree(1) + # control term
+    gwdsp(0.5, fixed = TRUE) + # RQ1, H1
+    nodecov("alliance_eigenvector") + # RQ2, H1
+    nodecov("alliance_degree") + # RQ2, H2
+    edgecov(state_dependency_matrix1), # RQ3, H2
+  control = ergm::control.ergm(
+    MCMC.burnin = 5000,
+    MCMC.samplesize = 10000,
+    seed = 123456,
+    MCMLE.maxit = 20
+  )
+)
+summary(m2)
+ergm::mcmc.diagnostics(m2)
+
+gofm <- ergm::gof(m2)
+snafun::stat_plot_gof(gofm)
+
+```
+
+```{r}
+m3 <- ergm::ergm(
+  g ~ edges + 
+    gwesp(0.5, fixed = TRUE) + # control term
+    nodecov("alliance_eigenvector") + # RQ2, H1
+    edgecov(state_dependency_matrix1) + # RQ3, H2
+    kstar(2), # RQ2, H3
+  control = ergm::control.ergm(
+    MCMC.burnin = 5000,
+    MCMC.samplesize = 10000,
+    seed = 123456,
+    MCMLE.maxit = 20,
+    parallel=4
+  )
+)
+summary(m3)
+ergm::mcmc.diagnostics(m3)
+
+gofm <- ergm::gof(m3)
+snafun::stat_plot_gof(gofm)
+```
+
+
+```{r, fig.width=8, fig.height=6} 
+m4 <- ergm::ergm(
+  g ~ edges + 
+    gwesp(0.5, fixed = TRUE) + # control term
+    nodecov("alliance_eigenvector") + # RQ2, H1
+    edgecov(state_dependency_matrix1) + # RQ3, H2
+    kstar(2) + # RQ2, H3
+    nodecov("num_states"), # RQ3, H1 #the state dependency matrix is still significant, so we can remove this one
+  control = ergm::control.ergm(
+    MCMC.burnin = 5000,
+    MCMC.samplesize = 10000,
+    seed = 123456,
+    MCMLE.maxit = 20,
+    parallel=4
+  )
+)
+summary(m4)
+ergm::mcmc.diagnostics(m4)
+
+gofm <- ergm::gof(m4)
+snafun::stat_plot_gof(gofm)
+
+```
+
+```{r, fig.width=8, fig.height=6} 
+m5 <- ergm::ergm(
+  g ~ edges + 
+    gwesp(0.5, fixed = TRUE) + # control term
+    nodecov("alliance_eigenvector") + # RQ2, H1
+    edgecov(state_dependency_matrix1) + # RQ3, H2
+    kstar(2) + # RQ2, H3
+    nodecov("num_states") + # RQ3, H1
+    degree(1), # control term
+  control = ergm::control.ergm(
+    MCMC.burnin = 5000,
+    MCMC.samplesize = 10000,
+    seed = 123456,
+    MCMLE.maxit = 20,
+    parallel=4
+  )
+)
+summary(m5)
+ergm::mcmc.diagnostics(m5)
+
+gofm <- ergm::gof(m5)
+snafun::stat_plot_gof(gofm)
+
+```
+
+```{r, fig.width=8, fig.height=6} 
+m6 <- ergm::ergm(
+  g ~ edges + 
+    gwesp(0.5, fixed = TRUE) + # control term
+    nodecov("alliance_eigenvector") + # RQ2, H1
+    edgecov(state_dependency_matrix1) + # RQ3, H2
+    kstar(2) + # RQ2, H3
+    degree(1) + # control term
+    nodecov("num_states") + # RQ3, H1
+    gwdsp(0.5, fixed = TRUE), # RQ1, H1
+  control = ergm::control.ergm(
+    MCMC.burnin = 5000,
+    MCMC.samplesize = 10000,
+    seed = 123456,
+    MCMLE.maxit = 20,
+    parallel=5
+  )
+)
+summary(m6)
+ergm::mcmc.diagnostics(m6)
+
+gofm <- ergm::gof(m5)
+snafun::stat_plot_gof(gofm)
+
+```
+
+```{r, fig.width=8, fig.height=6} 
+m7 <- ergm::ergm(
+  g ~ edges + 
+    gwesp(0.5, fixed = TRUE) + # control term
+    nodecov("alliance_eigenvector") + # RQ2, H1
+    edgecov(state_dependency_matrix2) + # RQ3, H2
+    kstar(2) + # RQ2, H3
+    degree(1) + # control term
+    nodecov("num_states") + # RQ3, H1
+    gwdsp(0.5, fixed = TRUE), # RQ1, H1
+  control = ergm::control.ergm(
+    MCMC.burnin = 5000,
+    MCMC.samplesize = 10000,
+    seed = 123456,
+    MCMLE.maxit = 20,
+    parallel=5
+  )
+)
+summary(m7)
+ergm::mcmc.diagnostics(m7)
+
+gofm <- ergm::gof(m7)
+snafun::stat_plot_gof(gofm)
+```
+
+```{r, fig.width=8, fig.height=6} 
+m8 <- ergm::ergm(
+  g ~ edges + 
+    gwdsp(0.5, fixed = TRUE) + # RQ1, H1
+    nodecov("alliance_eigenvector") + # RQ2, H1
+    edgecov(state_dependency_matrix2) + # RQ3, H2
+    kstar(2) + # RQ2, H3
+    degree(1) + # control term
+    nodecov("num_states"), # RQ3, H1
+  control = ergm::control.ergm(
+    MCMC.burnin = 5000,
+    MCMC.samplesize = 10000,
+    seed = 123456,
+    MCMLE.maxit = 20,
+    parallel=5
+  )
+)
+summary(m8)
+ergm::mcmc.diagnostics(m8)
+
+gofm <- ergm::gof(m8)
+snafun::stat_plot_gof(gofm)
+
+```
+
+```{r, fig.width=8, fig.height=6}
+# The last model includes all of the terms related to research questions and hypotheses and one control term.
+m9 <- ergm::ergm(
+  g ~ edges + 
+    gwdsp(0.5, fixed = TRUE) + # RQ1, H1
+    nodecov("alliance_eigenvector") + # RQ2, H1
+    nodecov("alliance_degree") + # RQ2, H2
+    kstar(2) + # RQ2, H3
+    nodecov("num_states") + # RQ3, H1
+    edgecov(state_dependency_matrix2) + # RQ3, H2
+    degree(1), # control term
+  control = ergm::control.ergm(
+    MCMC.burnin = 5000,
+    MCMC.samplesize = 10000,
+    seed = 123456,
+    MCMLE.maxit = 20,
+    parallel=5
+  )
+)
+summary(m9)
+ergm::mcmc.diagnostics(m9)
+
+gofm <- ergm::gof(m9)
+snafun::stat_plot_gof(gofm)
+```
+
+```{r, fig.width=8, fig.height=6}
+# Compare the models using the screenreg function
+texreg::screenreg(list(m1, m2, m3,m4,m5,m6,m7,m8,m9))
+```
+
