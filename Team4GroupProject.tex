@@ -64,6 +64,46 @@
 \fi
 \makeatother
 
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{241,243,245}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.40,0.45,0.13}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\ExtensionTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.28,0.35,0.67}{#1}}
+\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.46,0.62}{#1}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.07,0.07,0.07}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
 
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}\usepackage{longtable,booktabs,array}
@@ -446,25 +486,6 @@ the factors affecting the cartel behavior and the potential consequences
 for the law enforcement and policymakers not only in Mexico, but around
 the globe.
 
-\begin{figure}[H]
-
-{\centering \includegraphics{Figures/Figure1.jpg}
-
-}
-
-\caption{Number of cartels per state}
-
-\end{figure}%%
-\begin{figure}[H]
-
-{\centering \includegraphics{Figures/Figure2.png}
-
-}
-
-\caption{Correlation matrix of cartel unlawful activities}
-
-\end{figure}%
-
 \section{Research Rationale}\label{research-rationale}
 
 The ERGM is specifically useful in our case as it can lead to a better
@@ -694,6 +715,39 @@ deviation in the distribution of nodes with a path length greater than
 
 \subsubsection{2. Model Analysis}\label{model-analysis}
 
+\begin{verbatim}
+Table1: The Final Model Results
+\end{verbatim}
+
+\begin{verbatim}
+
+=============================================
+                                  Model 9    
+---------------------------------------------
+edges                               -3.69 ***
+                                    (0.41)   
+gwdsp.fixed.0.5                      0.62 ***
+                                    (0.18)   
+nodecov.alliance_eigenvector         0.30    
+                                    (0.95)   
+nodecov.alliance_degree              0.08 ** 
+                                    (0.03)   
+kstar2                              -0.76 ***
+                                    (0.21)   
+nodecov.num_states                  -0.00    
+                                    (0.10)   
+edgecov.state_dependency_matrix2     2.42 ***
+                                    (0.25)   
+degree1                              1.56 ***
+                                    (0.37)   
+---------------------------------------------
+AIC                                463.28    
+BIC                                509.83    
+Log Likelihood                    -223.64    
+=============================================
+*** p < 0.001; ** p < 0.01; * p < 0.05
+\end{verbatim}
+
 According to Figure 4, the estimated value of edges is -3.69 and the
 p-value is less than 0.001, which means that after many iterations, the
 network is still very sparse. The edge term describes the overall
@@ -812,7 +866,476 @@ the research, to capture the potential changes over time.
 
 \section{Appendices}\label{appendices}
 
-\includegraphics{Figures/Table2.png}
+\subsection{Appendix A: Data
+Manipulation}\label{appendix-a-data-manipulation}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Check and install missing packages}
+\NormalTok{required\_packages }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"readxl"}\NormalTok{, }\StringTok{"ggplot2"}\NormalTok{, }\StringTok{"igraph"}\NormalTok{, }\StringTok{"ggcorrplot"}\NormalTok{)}
+\NormalTok{missing\_packages }\OtherTok{\textless{}{-}} \FunctionTok{setdiff}\NormalTok{(required\_packages, }\FunctionTok{installed.packages}\NormalTok{()[, }\StringTok{"Package"}\NormalTok{])}
+\ControlFlowTok{if}\NormalTok{ (}\FunctionTok{length}\NormalTok{(missing\_packages) }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{) \{}
+  \FunctionTok{install.packages}\NormalTok{(missing\_packages)}
+\NormalTok{\}}
+
+\CommentTok{\# Load required libraries}
+\FunctionTok{library}\NormalTok{(readxl)}
+\FunctionTok{library}\NormalTok{(ggplot2)}
+\FunctionTok{library}\NormalTok{(igraph)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Warning: package 'igraph' was built under R version 4.4.2
+\end{verbatim}
+
+\begin{verbatim}
+
+Attaching package: 'igraph'
+\end{verbatim}
+
+\begin{verbatim}
+The following objects are masked from 'package:stats':
+
+    decompose, spectrum
+\end{verbatim}
+
+\begin{verbatim}
+The following object is masked from 'package:base':
+
+    union
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(ggcorrplot)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Warning: package 'ggcorrplot' was built under R version 4.4.2
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Load the data}
+\NormalTok{data }\OtherTok{\textless{}{-}}\NormalTok{ readxl}\SpecialCharTok{::}\FunctionTok{read\_excel}\NormalTok{(}\StringTok{"Data/BACRIM2020{-}DB.xlsx"}\NormalTok{)}
+\FunctionTok{print}\NormalTok{(}\FunctionTok{colnames}\NormalTok{(data))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+ [1] "id"                     "grupo"                  "persona"               
+ [4] "estado"                 "aliados"                "número de aliados"     
+ [7] "rivales"                "número de rivales"      "actividades_delictivas"
+[10] "narcotrafico"           "conflictos_armados"     "presencia_noviolenta"  
+[13] "accion_guber"           "otros"                  "fecha"                 
+[16] "link1"                  "link2"                  "link3"                 
+[19] "link4"                  "link5"                  "link6"                 
+[22] "link7"                  "link8"                  "link9"                 
+[25] "...25"                  "...26"                 
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Summary of the dataset}
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Summary of dataset:}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Summary of dataset:
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(}\FunctionTok{summary}\NormalTok{(data))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+       id            grupo             persona             estado         
+ Min.   :  1.00   Length:251         Length:251         Length:251        
+ 1st Qu.: 27.00   Class :character   Class :character   Class :character  
+ Median : 62.00   Mode  :character   Mode  :character   Mode  :character  
+ Mean   : 65.14                                                           
+ 3rd Qu.:104.50                                                           
+ Max.   :150.00                                                           
+                                                                          
+   aliados          número de aliados   rivales          número de rivales
+ Length:251         Min.   :1.000     Length:251         Min.   :0.000    
+ Class :character   1st Qu.:1.000     Class :character   1st Qu.:1.000    
+ Mode  :character   Median :1.000     Mode  :character   Median :1.000    
+                    Mean   :1.315                        Mean   :1.627    
+                    3rd Qu.:1.000                        3rd Qu.:2.000    
+                    Max.   :7.000                        Max.   :6.000    
+                    NA's   :127                          NA's   :141      
+ actividades_delictivas  narcotrafico    conflictos_armados
+ Min.   :0.0000         Min.   :0.0000   Min.   :0.0000    
+ 1st Qu.:0.0000         1st Qu.:0.0000   1st Qu.:0.0000    
+ Median :0.0000         Median :0.0000   Median :0.0000    
+ Mean   :0.3984         Mean   :0.3785   Mean   :0.4303    
+ 3rd Qu.:1.0000         3rd Qu.:1.0000   3rd Qu.:1.0000    
+ Max.   :1.0000         Max.   :1.0000   Max.   :1.0000    
+                                                           
+ presencia_noviolenta  accion_guber        otros           fecha          
+ Min.   :0.0000       Min.   :0.0000   Min.   :0.0000   Length:251        
+ 1st Qu.:0.0000       1st Qu.:0.0000   1st Qu.:0.0000   Class :character  
+ Median :0.0000       Median :0.0000   Median :0.0000   Mode  :character  
+ Mean   :0.1275       Mean   :0.1394   Mean   :0.2231                     
+ 3rd Qu.:0.0000       3rd Qu.:0.0000   3rd Qu.:0.0000                     
+ Max.   :1.0000       Max.   :1.0000   Max.   :1.0000                     
+                                                                          
+    link1              link2              link3              link4          
+ Length:251         Length:251         Length:251         Length:251        
+ Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                                                                            
+                                                                            
+                                                                            
+                                                                            
+    link5              link6              link7              link8          
+ Length:251         Length:251         Length:251         Length:251        
+ Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                                                                            
+                                                                            
+                                                                            
+                                                                            
+    link9              ...25              ...26          
+ Length:251         Length:251         Length:251        
+ Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character  
+                                                         
+                                                         
+                                                         
+                                                         
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{cat}\NormalTok{(}\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{Number of unique cartels:"}\NormalTok{, }\FunctionTok{length}\NormalTok{(}\FunctionTok{unique}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{grupo)), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+
+Number of unique cartels: 150 
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Number of alliances:"}\NormalTok{, }\FunctionTok{sum}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{aliados)), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Number of alliances: 124 
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Number of rivalries:"}\NormalTok{, }\FunctionTok{sum}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{rivales)), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Number of rivalries: 109 
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Number of unique states:"}\NormalTok{, }\FunctionTok{length}\NormalTok{(}\FunctionTok{unique}\NormalTok{(}\FunctionTok{unlist}\NormalTok{(}\FunctionTok{strsplit}\NormalTok{(}\FunctionTok{paste}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{estado, }\AttributeTok{collapse =} \StringTok{";"}\NormalTok{), }\StringTok{";"}\NormalTok{)))), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Number of unique states: 32 
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Bar plot of cartel activity by state}
+\CommentTok{\# Convert state counts to a data frame for visualization}
+\NormalTok{state\_counts\_df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+  \AttributeTok{State =} \FunctionTok{names}\NormalTok{(state\_counts),}
+  \AttributeTok{Count =} \FunctionTok{as.numeric}\NormalTok{(state\_counts)}
+\NormalTok{)}
+
+\CommentTok{\# Create the bar plot}
+\NormalTok{ggplot2}\SpecialCharTok{::}\FunctionTok{ggplot}\NormalTok{(state\_counts\_df, ggplot2}\SpecialCharTok{::}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ State, }\AttributeTok{y =}\NormalTok{ Count)) }\SpecialCharTok{+}
+\NormalTok{  ggplot2}\SpecialCharTok{::}\FunctionTok{geom\_bar}\NormalTok{(}\AttributeTok{stat =} \StringTok{"identity"}\NormalTok{, }\AttributeTok{fill =} \StringTok{"steelblue"}\NormalTok{) }\SpecialCharTok{+}
+\NormalTok{  ggplot2}\SpecialCharTok{::}\FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Figure1:Number of Cartels Active in Each State"}\NormalTok{, }\AttributeTok{x =} \StringTok{"State"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Count"}\NormalTok{) }\SpecialCharTok{+}
+\NormalTok{  ggplot2}\SpecialCharTok{::}\FunctionTok{theme}\NormalTok{(}\AttributeTok{axis.text.x =}\NormalTok{ ggplot2}\SpecialCharTok{::}\FunctionTok{element\_text}\NormalTok{(}\AttributeTok{angle =} \DecValTok{90}\NormalTok{, }\AttributeTok{hjust =} \DecValTok{1}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Team4GroupProject_files/figure-pdf/unnamed-chunk-21-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Network properties visualization (Degree Distribution)}
+\CommentTok{\# Prepare the network for degree visualization}
+\NormalTok{rivalry\_edges }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+  \AttributeTok{from =} \FunctionTok{rep}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{grupo, }\AttributeTok{times =} \FunctionTok{sapply}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{rivales, }\ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{length}\NormalTok{(}\FunctionTok{unlist}\NormalTok{(}\FunctionTok{strsplit}\NormalTok{(x, }\StringTok{";"}\NormalTok{))))),}
+  \AttributeTok{to =} \FunctionTok{unlist}\NormalTok{(}\FunctionTok{strsplit}\NormalTok{(}\FunctionTok{paste}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{rivales, }\AttributeTok{collapse =} \StringTok{";"}\NormalTok{), }\StringTok{";"}\NormalTok{))}
+\NormalTok{)}
+
+\CommentTok{\# Remove NA edges}
+\NormalTok{rivalry\_edges }\OtherTok{\textless{}{-}} \FunctionTok{na.omit}\NormalTok{(rivalry\_edges)}
+
+\CommentTok{\# Create an igraph network}
+\NormalTok{rivalry\_graph }\OtherTok{\textless{}{-}}\NormalTok{ igraph}\SpecialCharTok{::}\FunctionTok{graph\_from\_data\_frame}\NormalTok{(rivalry\_edges, }\AttributeTok{directed =} \ConstantTok{FALSE}\NormalTok{)}
+
+\CommentTok{\# Plot degree distribution}
+\NormalTok{degree\_distribution }\OtherTok{\textless{}{-}}\NormalTok{ igraph}\SpecialCharTok{::}\FunctionTok{degree}\NormalTok{(rivalry\_graph)}
+\NormalTok{ggplot2}\SpecialCharTok{::}\FunctionTok{ggplot}\NormalTok{(}\FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Degree =}\NormalTok{ degree\_distribution), ggplot2}\SpecialCharTok{::}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Degree)) }\SpecialCharTok{+}
+\NormalTok{  ggplot2}\SpecialCharTok{::}\FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{bins =} \DecValTok{20}\NormalTok{, }\AttributeTok{fill =} \StringTok{"darkorange"}\NormalTok{, }\AttributeTok{color =} \StringTok{"black"}\NormalTok{) }\SpecialCharTok{+}
+\NormalTok{  ggplot2}\SpecialCharTok{::}\FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Figure2: Degree Distribution of Rivalry Network"}\NormalTok{, }\AttributeTok{x =} \StringTok{"Degree"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Frequency"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Team4GroupProject_files/figure-pdf/unnamed-chunk-22-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Extract binary columns related to cartel activities}
+\NormalTok{activity\_columns }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"actividades\_delictivas"}\NormalTok{, }\StringTok{"narcotrafico"}\NormalTok{, }
+                      \StringTok{"conflictos\_armados"}\NormalTok{, }\StringTok{"presencia\_noviolenta"}\NormalTok{, }
+                      \StringTok{"accion\_guber"}\NormalTok{, }\StringTok{"otros"}\NormalTok{)}
+
+\CommentTok{\# Mapping of Spanish to English}
+\NormalTok{translations }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}
+  \AttributeTok{actividades\_delictivas =} \StringTok{"Criminal Activities"}\NormalTok{,}
+  \AttributeTok{narcotrafico =} \StringTok{"Drug Trafficking"}\NormalTok{,}
+  \AttributeTok{conflictos\_armados =} \StringTok{"Armed Conflicts"}\NormalTok{,}
+  \AttributeTok{presencia\_noviolenta =} \StringTok{"Non{-}violent Presence"}\NormalTok{,}
+  \AttributeTok{accion\_guber =} \StringTok{"Government Actions"}\NormalTok{,}
+  \AttributeTok{otros =} \StringTok{"Others"}
+\NormalTok{)}
+
+\CommentTok{\# Subset activity columns and translate their names}
+\NormalTok{activity\_matrix }\OtherTok{\textless{}{-}}\NormalTok{ data\_combined[, activity\_columns]}
+\FunctionTok{colnames}\NormalTok{(activity\_matrix) }\OtherTok{\textless{}{-}}\NormalTok{ translations[}\FunctionTok{colnames}\NormalTok{(activity\_matrix)]}
+
+\CommentTok{\# Compute correlation matrix}
+\NormalTok{activity\_correlation }\OtherTok{\textless{}{-}} \FunctionTok{cor}\NormalTok{(activity\_matrix, }\AttributeTok{use =} \StringTok{"pairwise.complete.obs"}\NormalTok{)}
+
+\CommentTok{\# Plot the heatmap}
+\NormalTok{ggcorrplot}\SpecialCharTok{::}\FunctionTok{ggcorrplot}\NormalTok{(activity\_correlation, }
+                       \AttributeTok{method =} \StringTok{"square"}\NormalTok{, }
+                       \AttributeTok{lab =} \ConstantTok{TRUE}\NormalTok{, }
+                       \AttributeTok{title =} \StringTok{"Figure2: Correlation Matrix of Cartel Activities"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Team4GroupProject_files/figure-pdf/unnamed-chunk-23-1.pdf}
+
+\subsection{Appendix B: ERGM Modeling}\label{appendix-b-ergm-modeling}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Generate GOF statistics}
+\NormalTok{gofm }\OtherTok{\textless{}{-}}\NormalTok{ ergm}\SpecialCharTok{::}\FunctionTok{gof}\NormalTok{(m9)}
+
+\CommentTok{\# Plot GOF using snafun}
+\NormalTok{snafun}\SpecialCharTok{::}\FunctionTok{stat\_plot\_gof}\NormalTok{(gofm)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Team4GroupProject_files/figure-pdf/unnamed-chunk-24-1.pdf}
+
+\includegraphics{Team4GroupProject_files/figure-pdf/unnamed-chunk-24-2.pdf}
+
+\includegraphics{Team4GroupProject_files/figure-pdf/unnamed-chunk-24-3.pdf}
+
+\includegraphics{Team4GroupProject_files/figure-pdf/unnamed-chunk-24-4.pdf}
+
+\pagebreak
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{texreg}\SpecialCharTok{::}\FunctionTok{screenreg}\NormalTok{(}
+  \FunctionTok{list}\NormalTok{(m1, m2, m3),}
+  \AttributeTok{custom.model.names =} \FunctionTok{c}\NormalTok{(}\StringTok{"Model 1"}\NormalTok{, }\StringTok{"Model 2"}\NormalTok{, }\StringTok{"Model 3"}\NormalTok{)}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+
+=======================================================================
+                                  Model 1      Model 2      Model 3    
+-----------------------------------------------------------------------
+edges                               -5.76 ***    -5.06 ***    -5.80 ***
+                                    (0.36)       (0.44)       (0.35)   
+gwesp.fixed.0.5                      0.05         0.06         0.03    
+                                    (0.12)       (0.13)       (0.12)   
+edgecov.state_dependency_matrix1     3.53 ***     3.53 ***     3.61 ***
+                                    (0.39)       (0.40)       (0.38)   
+nodecov.alliance_degree              0.03 ***     0.06 ***             
+                                    (0.01)       (0.02)                
+degree1                                           1.56 ***             
+                                                 (0.32)                
+gwdsp.fixed.0.5                                  -0.11                 
+                                                 (0.06)                
+nodecov.alliance_eigenvector                      0.20         0.46    
+                                                 (0.70)       (0.52)   
+kstar2                                                         0.05    
+                                                              (0.03)   
+-----------------------------------------------------------------------
+AIC                                506.19       482.23       524.30    
+BIC                                529.47       522.95       553.39    
+Log Likelihood                    -249.10      -234.11      -257.15    
+=======================================================================
+*** p < 0.001; ** p < 0.01; * p < 0.05
+\end{verbatim}
+
+\begin{verbatim}
+Table 2: ERGM Model Results for Models 1-3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{texreg}\SpecialCharTok{::}\FunctionTok{screenreg}\NormalTok{(}
+  \FunctionTok{list}\NormalTok{(m4, m5, m6),}
+  \AttributeTok{custom.model.names =} \FunctionTok{c}\NormalTok{(}\StringTok{"Model 4"}\NormalTok{, }\StringTok{"Model 5"}\NormalTok{, }\StringTok{"Model 6"}\NormalTok{)}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+
+=======================================================================
+                                  Model 4      Model 5      Model 6    
+-----------------------------------------------------------------------
+edges                               -5.85 ***    -5.21 ***    -5.17 ***
+                                    (0.39)       (0.47)       (0.47)   
+gwesp.fixed.0.5                      0.14         0.21         0.32    
+                                    (0.14)       (0.15)       (0.19)   
+nodecov.alliance_eigenvector         1.06         1.29         1.12    
+                                    (0.98)       (0.95)       (0.95)   
+edgecov.state_dependency_matrix1     3.50 ***     3.49 ***     3.46 ***
+                                    (0.39)       (0.39)       (0.40)   
+kstar2                              -0.28 *      -0.26 *      -0.37 *  
+                                    (0.11)       (0.11)       (0.16)   
+nodecov.num_states                   0.32 ***     0.26 **      0.26 ** 
+                                    (0.09)       (0.08)       (0.08)   
+degree1                                           1.58 ***     1.63 ***
+                                                 (0.34)       (0.35)   
+gwdsp.fixed.0.5                                                0.12    
+                                                              (0.14)   
+-----------------------------------------------------------------------
+AIC                                499.19       475.55       476.92    
+BIC                                534.10       516.28       523.47    
+Log Likelihood                    -243.60      -230.77      -230.46    
+=======================================================================
+*** p < 0.001; ** p < 0.01; * p < 0.05
+\end{verbatim}
+
+\begin{verbatim}
+Table 3: ERGM Model Results for Models 4-6
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{texreg}\SpecialCharTok{::}\FunctionTok{screenreg}\NormalTok{(}
+  \FunctionTok{list}\NormalTok{(m7, m8, m9),}
+  \AttributeTok{custom.model.names =} \FunctionTok{c}\NormalTok{(}\StringTok{"Model 7"}\NormalTok{, }\StringTok{"Model 8"}\NormalTok{, }\StringTok{"Model 9"}\NormalTok{)}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+
+=======================================================================
+                                  Model 7      Model 8      Model 9    
+-----------------------------------------------------------------------
+edges                               -4.00 ***    -4.01 ***    -3.69 ***
+                                    (0.37)       (0.38)       (0.41)   
+gwesp.fixed.0.5                      0.05                              
+                                    (0.26)                             
+nodecov.alliance_eigenvector         0.47         0.47         0.30    
+                                    (0.97)       (1.02)       (0.95)   
+edgecov.state_dependency_matrix2     2.34 ***     2.36 ***     2.42 ***
+                                    (0.26)       (0.24)       (0.25)   
+kstar2                              -0.85 ***    -0.83 ***    -0.76 ***
+                                    (0.23)       (0.20)       (0.21)   
+degree1                              1.49 ***     1.45 ***     1.56 ***
+                                    (0.35)       (0.36)       (0.37)   
+nodecov.num_states                   0.16         0.16        -0.00    
+                                    (0.09)       (0.09)       (0.10)   
+gwdsp.fixed.0.5                      0.74 ***     0.72 ***     0.62 ***
+                                    (0.21)       (0.18)       (0.18)   
+nodecov.alliance_degree                                        0.08 ** 
+                                                              (0.03)   
+-----------------------------------------------------------------------
+AIC                                470.69       468.29       463.28    
+BIC                                517.24       509.01       509.83    
+Log Likelihood                    -227.35      -227.14      -223.64    
+=======================================================================
+*** p < 0.001; ** p < 0.01; * p < 0.05
+\end{verbatim}
+
+\begin{verbatim}
+Table 4: ERGM Model Results for Models 7-9
+\end{verbatim}
+
+\subsection{Appendix C: ERGM Terms}\label{appendix-c-ergm-terms}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1003}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.0295}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.0531}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2065}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.6106}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Term
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+RQ
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Hypothesis
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Role
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Interpretation
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+edges & All & Baseline & Captures the baseline likelihood of rivalry
+ties forming & Negative coefficient indicates rivalry ties are less
+likely to form without other structural or covariate effects. \\
+gwdsp.fixed.0.5 & RQ1 & Hypothesis 1.1 & Captures the influence of
+indirect ties (paths of length 2) & Positive coefficient indicates that
+indirect connections (e.g., common enemies) reduce rivalry formation. \\
+nodecov.alliance\_degree & RQ2 & Hypothesis 2.2 & Measures the direct
+connections of a cartel in the alliance network & Positive coefficient
+suggests cartels with more alliances tend to have more rivals. \\
+nodecov.alliance\_eigenvector & RQ2 & Hypothesis 2.1 & Tests whether
+broader influence in the alliance network impacts rivalry formation &
+Not significant, indicating broader influence is less impactful than
+direct connections. \\
+kstar2 & RQ2 & Hypothesis 2.3 & Measures structural aggressiveness
+through shared ties & Negative coefficient shows cartels avoid
+multi-party conflicts (e.g., multi-party conflicts), preferring
+hierarchical structures. \\
+nodecov.num\_states & RQ3 & Hypothesis 3.1 & Measures geographic reach
+by counting the states a cartel is active in & Not significant,
+suggesting that cross-state activity does not strongly predict rivalry
+formation. \\
+edgecov.state\_dependency\_matrix2 & RQ3 & Hypothesis 3.2 & Captures the
+effect of geographic proximity on rivalry formation & Positive
+coefficient indicates cartels in the same state are more likely to
+become rivals. \\
+degree1 & Control & Control & Control variable to account for peripheral
+cartels & Positive coefficient suggests low-degree nodes still influence
+rivalry formation. \\
+gwesp(0.5) & Control & Control & Clustering & Not significant;
+clustering does not play a major role in rivalry formation. \\
+\end{longtable}
 
 \phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}

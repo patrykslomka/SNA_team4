@@ -6,14 +6,15 @@ format:
   pdf:
     documentclass: article
     header-includes:
-      - \usepackage{fancyhdr} % Load the fancyhdr package
-      - \pagestyle{fancy} % Enable fancy page style
-      - \fancyhf{} % Clear all default header/footer settings
-      - \fancyhead[R]{\thepage} % Add page numbers to the top-right corner
-      - \renewcommand{\headrulewidth}{0pt} % Remove the horizontal line in the header
-      - \renewcommand{\footrulewidth}{0pt} % Remove the horizontal line in the footer
+      - \usepackage{fancyhdr} 
+      - \pagestyle{fancy} 
+      - \fancyhf{} 
+      - \fancyhead[R]{\thepage}
+      - \renewcommand{\headrulewidth}{0pt} 
+      - \renewcommand{\footrulewidth}{0pt}
 toc: true
 bibliography: references.bib
+appendix: true
 ---
 
 # Executive Summary
@@ -70,20 +71,20 @@ By taking into account the territory size and armed conflicts between cartels, s
 
 The ERGM is specifically useful in our case as it can lead to a better understanding of the complex relationships between Mexican cartels and their rivalries. Our first reason for choosing this model was because of the network modeling. The research questions that this paper addresses include the possibility of triadic closures in the network. Those are especially taken into account by ERGM and are beneficial for our study. The paper dives deeper into the ERGM terms used in the Results section. If traditional statistical methods were to be used, it could assume independence between the observations, and this is not our goal. Moreover, our hypotheses also could not be tested without the use of ERGM and based on that could not be supported or rejected. To make sure everything is correctly set up, we had to include specific terms into our model to test the hypotheses about the network formation. Another benefit of ERGM is that it is also flexible to some extent. It can include the node-level and edge-level attributes. By putting them together, the model can examine how these factors influence the formation of network. Last but not least, it also proposes interpretable coefficients that help us measure the network characteristics, such as the influence of alliances on rivalry creation. For our ERGM to provide the best results, we have chosen those terms:
 
-| Term    | Description                                                                                                                                                                                                                                                              |
+| Term | Description |
 |------------------------------------|------------------------------------|
-| edges   | Baseline term modeling the likelihood of a rivalry tie forming between nodes, independent of other factors.                                                                                                                                                              |
-| gwesp   | Models triadic closure by examining the probability of ties forming in triangles (triadic configurations). It was used as a control variable to test whether rivalries are more likely to form in triadic configurations.                                                |
-| gwdsp   | Models shared enemies by checking if two nodes share a common enemy, reducing the likelihood of a direct tie between them.                                                                                                                                               |
-| degree  | A control variable modeling nodes with a specific number of connections (e.g., nodes with degree = 1). It helps account for peripheral nodes that might have unique interaction patterns.                                                                                |
-| edgecov | Incorporates the influence of external covariates from a secondary matrix on tie formation (e.g., state matrices indicating whether cartels operate in the same states).                                                                                                 |
+| edges | Baseline term modeling the likelihood of a rivalry tie forming between nodes, independent of other factors. |
+| gwesp | Models triadic closure by examining the probability of ties forming in triangles (triadic configurations). It was used as a control variable to test whether rivalries are more likely to form in triadic configurations. |
+| gwdsp | Models shared enemies by checking if two nodes share a common enemy, reducing the likelihood of a direct tie between them. |
+| degree | A control variable modeling nodes with a specific number of connections (e.g., nodes with degree = 1). It helps account for peripheral nodes that might have unique interaction patterns. |
+| edgecov | Incorporates the influence of external covariates from a secondary matrix on tie formation (e.g., state matrices indicating whether cartels operate in the same states). |
 | nodecov | Measures the effect of node-specific attributes (covariates) on tie formation. Examples include: the number of states a cartel is active in rivalry network, alliance eigenvector centrality from the alliances network, and alliance degree from the alliances network. |
 
 Based on our research, there are other methods that would be also suitable to use in our study. One of them includes stochastic black models (SBM) or traditional social network analysis (SNA) techniques. The former would be useful to identify clusters and structures among network, however, would not provide many interesting insights about triadic closures or specific network configurations. The latter might provide additional insights into the descriptive analysis of the network but, as the goal is to find the interdependence between variables in the network, it would not be a suitable choice. For that reason, our ERGM is designed to capture the dependencies as stated in the research questions and hypotheses. By using the above-mentioned terms and especially ’gwesp’, we can observe and find the triadic closures within our model.
 
 # Results
 
-```{r}
+```{r, warning = FALSE}
 #| include: false
 knitr::opts_chunk$set(echo = TRUE)
 # Load data for valid edges (clean data) and vertex attributes.
@@ -103,7 +104,7 @@ rownames(state_dependency_matrix_wei) <- colnames(state_dependency_matrix_wei)
 
 ```
 
-```{r}
+```{r, warning = FALSE}
 #| include: false
 rivalry_edges <- subset(valid_edges, type == "rivalry")
 g <- igraph::graph_from_data_frame(d = rivalry_edges, vertices = data_combined, directed = FALSE)
@@ -150,7 +151,7 @@ snafun::plot(g_alliances_i,
 
 ```
 
-```{r}
+```{r, warning = FALSE}
 #| include: false
 # Convert the alliance network to a matrix and check its dimensions and for any missing values.
 g_alliances_matrix <- as.matrix(g_alliances)
@@ -197,7 +198,7 @@ state_dependency_matrix2 <- state_dependency_matrix_wei[common_rows, common_cols
 (any(is.na(state_dependency_matrix1)))
 ```
 
-```{r}
+```{r, warning = FALSE}
 #| include: false
 # Match node attributes (alliance degree) from the alliance network to the rivalry network.
 alliance_node_names <- network::get.vertex.attribute(g_alliances, "vertex.names")
@@ -214,7 +215,7 @@ alliance_degrees_matched[is.na(alliance_degrees_matched)] <- 0
 network::set.vertex.attribute(g, "alliance_degree", alliance_degrees_matched)
 ```
 
-```{r}
+```{r, warning = FALSE}
 #| include: false
 # Define a function to calculate Hamming distance and normalize it.
 calculate_hamming_distance <- function(mat1, mat2) {
@@ -298,7 +299,7 @@ metrics <- evaluate_subset_relationship(edges_state_dependency, edges_rivalries)
 print(metrics)
 ```
 
-```{r}
+```{r, warning = FALSE}
 #| include: false
 # Assign eigenvector centrality from alliance network to rivalry network.
 alliance_node_names <- network::get.vertex.attribute(g_alliances, "vertex.names")
@@ -326,7 +327,7 @@ alliance_eigenvector_matched[is.na(alliance_eigenvector_matched)] <- 0
 network::set.vertex.attribute(g, "alliance_eigenvector", alliance_eigenvector_matched)
 ```
 
-```{r}
+```{r, warning = FALSE}
 #| include: false
 # Retrieve the alliance_degree attribute
 alliance_degree <- network::get.vertex.attribute(g, "alliance_degree")
@@ -339,7 +340,7 @@ node_names_with_na
 
 ```
 
-```{r}
+```{r, warning = FALSE}
 #| include: false
 # Count states each cartel is active in and assign the attribute to the rivalry network.
 rivalryattr <- network::get.vertex.attribute(g, 'estado')
@@ -352,7 +353,7 @@ network::set.vertex.attribute(g, "num_states", state_counts)
 network::get.vertex.attribute(g, "num_states")
 ```
 
-```{r}
+```{r, warning = FALSE}
 #| include: false
 # start ERGM modeling
 m0 <- ergm::ergm(g ~ edges)
@@ -360,7 +361,7 @@ summary(m0)
 
 ```
 
-```{r, fig.width=8, fig.height=6}
+```{r, warning = FALSE, fig.width=8, fig.height=6}
 #| include: false
 m1 <- ergm::ergm((g ~ edges +
                     gwesp(0.5, fixed = TRUE) + # control term
@@ -377,7 +378,7 @@ gofm <- ergm::gof(m1)
 snafun::stat_plot_gof(gofm)
 ```
 
-```{r, fig.width=8, fig.height=6}
+```{r, warning = FALSE, fig.width=8, fig.height=6}
 #| include: false
 m2 <- ergm::ergm(
   g ~ edges + 
@@ -402,7 +403,7 @@ snafun::stat_plot_gof(gofm)
 
 ```
 
-```{r, fig.width=8, fig.height=6}
+```{r, warning = FALSE, fig.width=8, fig.height=6}
 #| include: false
 m3 <- ergm::ergm(
   g ~ edges + 
@@ -425,7 +426,7 @@ gofm <- ergm::gof(m3)
 snafun::stat_plot_gof(gofm)
 ```
 
-```{r, fig.width=8, fig.height=6}
+```{r, warning = FALSE, fig.width=8, fig.height=6}
 #| include: false
 m4 <- ergm::ergm(
   g ~ edges + 
@@ -449,7 +450,7 @@ gofm <- ergm::gof(m4)
 snafun::stat_plot_gof(gofm)
 ```
 
-```{r, fig.width=8, fig.height=6}
+```{r, warning = FALSE, fig.width=8, fig.height=6}
 #| include: false
 m5 <- ergm::ergm(
   g ~ edges + 
@@ -474,7 +475,7 @@ gofm <- ergm::gof(m5)
 snafun::stat_plot_gof(gofm)
 ```
 
-```{r, fig.width=8, fig.height=6}
+```{r, warning = FALSE, fig.width=8, fig.height=6}
 #| include: false
 m6 <- ergm::ergm(
   g ~ edges + 
@@ -500,7 +501,7 @@ gofm <- ergm::gof(m5)
 snafun::stat_plot_gof(gofm)
 ```
 
-```{r, fig.width=8, fig.height=6}
+```{r, warning = FALSE, fig.width=8, fig.height=6}
 #| include: false
 m7 <- ergm::ergm(
   g ~ edges + 
@@ -526,7 +527,7 @@ gofm <- ergm::gof(m7)
 snafun::stat_plot_gof(gofm)
 ```
 
-```{r, fig.width=8, fig.height=6}
+```{r, warning = FALSE, fig.width=8, fig.height=6}
 #| include: false
 m8 <- ergm::ergm(
   g ~ edges + 
@@ -551,7 +552,7 @@ gofm <- ergm::gof(m8)
 snafun::stat_plot_gof(gofm)
 ```
 
-```{r, fig.width=8, fig.height=6}
+```{r, warning = FALSE, fig.width=8, fig.height=6}
 #| include: false
 m9 <- ergm::ergm(
   g ~ edges + 
@@ -579,11 +580,11 @@ Gwesp captures triangular closure through weighted statistics. Kstar and gwdsp m
 
 ## Data Manipulation
 
-First of all, there are Rivalry data, Alliance data, and State Dependency data in the data source. By filtering the edges of type Rivalry and Alliance from the original data, we could generate the Rivalry Network and Alliance Network respectively. In the Rivalry Network, the study removed all isolated nodes with a degree of 0, which retains only the cartels involved in competitive relationships.
+First of all, the dataset used consists of Rivalry data, Alliance data, and State Dependency data. By filtering the edges of type Rivalry and Alliance from the original data, we could generate the Rivalry Network and Alliance Network respectively. All isolates were removed from the Rivalry Network in order to only retain the cartels involved in competitive relationships.
 
-The data was cleaned, aggregating cartels that had the same name across multiple rows in the raw dataset into single entities to prepare the data for analysis. This ensured that every cartel was a unique node, with their alliances and rivalries, as well as operational attributes, consolidated in a manner representative of reality. The degree and influence of each node in the Alliance Network were calculated and added as node attributes in the Rivalry Network. The number of states for which each cartel is an active state has been counted and added as an attribute of the node (as another proxy for geographic extensiveness of operation of the cartel).
+The dataset is structured such that each row represents a unique combination of a cartel and a state in which it operates. Therefore, after the data was cleaned the data was aggregated by cartel name. This ensured that every cartel has an unique node, with their alliances and rivalries, as well as operational attributes, consolidated in a manner representative of reality. The degree and centrality of each node in the Alliance Network were calculated and added as node attributes to the vertices in the Rivalry Network. The number of states in which the cartels are active were counted and added as an attribute of the node (as another proxy for geographic extensiveness of operation of the cartel).
 
-The paper produces two state dependency matrices. One is the binary matrix, "state_dependency_matrix1", and one weighted, "state_dependency_matrix2". The "state_dependency_matrix1" provides for each pair of cartels if they are or not present in the same state; while "state_dependency_matrix2" accounts for the number of shared states between the pairs. Lastly, the network was transformed into an object that could be used by ERGM for analysis to fit into the ERGM framework. NA values were checked and verified that indeed all attributes that needed validation were correctly assigned to the Rivalry Network.
+In order to investigate the shared geographical locations between cartels two state dependency matrices were created. One binary matrix, "state_dependency_matrix1", and one weighted, "state_dependency_matrix2". The "state_dependency_matrix1" provides for each pair of cartels if they are present in the same state; while "state_dependency_matrix2" accounts for the number of shared states between the pairs. Lastly, the network was transformed into an object that could be used by ERGM for analysis to fit into the ERGM framework. NA values were checked in the final network, but no missing values have been identified.
 
 ## Modeling Strategy
 
@@ -611,15 +612,14 @@ The geodesic distance map reveals that the distribution of the simulated network
 
 ### 2. Model Analysis
 
-```{r, fig.width=5, fig.height=4}
+```{r, warning = FALSE, fig.width=5, fig.height=4}
 #| echo: false
 cat("Table1: The Final Model Results\n")
 texreg::screenreg(m9,custom.model.names = "Model 9")
 
 ```
 
-
-According to Figure 4, the estimated value of edges is -3.69 and the p-value is less than 0.001, which means that after many iterations, the network is still very sparse. The edge term describes the overall tendency of rivalry ties to form, independent of other structural or covariate terms. Its negative coefficient suggests that rivalry relationships are generally unlikely to form in the network. These conflicts do not happen randomly and instead require the influence of other structural patterns or covariates.
+The estimated value of edges is -3.69 and the p-value is less than 0.001, which means that after many iterations, the network is still very sparse. The edge term describes the overall tendency of rivalry ties to form, independent of other structural or covariate terms. Its negative coefficient suggests that rivalry relationships are generally unlikely to form in the network. These conflicts do not happen randomly and instead require the influence of other structural patterns or covariates.
 
 Gwdsp coefficient of 0.621 indicates a strong clustering effect. The low standard error of 0.178 also confirms its reliability. This high positive coefficient indicates that the nodes play an important role in the network structure by sharing indirect connections formed by enemies. Agglomeration effects show that rivalry networks may be driven by common enemies, forming more complex indirect interactions rather than a single direct conflict.
 
@@ -645,12 +645,16 @@ Firstly, for the RQ1, we found a support for the Hypothesis 1. This means that i
 
 Our findings benefit mostly the policymakers and law enforcement agencies in Mexico. The case could be also applied to other parts pf the world, as it provides practical insights into the connections within crime-focused organizations networks. Based on the geographic insights, the law enforcement can better allocate the resources to predict the future possible rivalries and act before they escalate. Moreover, the researchers would be also beneficiaries of the findings, as it can give deeper knowledge into the contextual and structural elements influencing the cartels’ behavior.
 
+
 The open problem that still remains is connected with the incompleteness of data and/or possible biased information in the analyzed dataset. The cartels' behavior in terms of rivalries and alliances can also be influenced by other socio-economic and political factors. Future research could address those limitations by gathering more data to ensure and understand the wider perspective on the cartels’ behavior. Next to that, the usage of dynamic ERGMs would also be beneficial for the research, to capture the potential changes over time.
 
 # Appendices
 
 ## Appendix A: Data Manipulation
-```{r}
+
+### Data Summary
+
+```{r, warning = FALSE}
 # Check and install missing packages
 required_packages <- c("readxl", "ggplot2", "igraph", "ggcorrplot")
 missing_packages <- setdiff(required_packages, installed.packages()[, "Package"])
@@ -677,22 +681,9 @@ cat("Number of rivalries:", sum(!is.na(data$rivales)), "\n")
 cat("Number of unique states:", length(unique(unlist(strsplit(paste(data$estado, collapse = ";"), ";")))), "\n")
 ```
 
-```{r}
-# Bar plot of cartel activity by state
-# Convert state counts to a data frame for visualization
-state_counts_df <- data.frame(
-  State = names(state_counts),
-  Count = as.numeric(state_counts)
-)
+### Degree Distirubution of Rivalry Network
 
-# Create the bar plot
-ggplot2::ggplot(state_counts_df, ggplot2::aes(x = State, y = Count)) +
-  ggplot2::geom_bar(stat = "identity", fill = "steelblue") +
-  ggplot2::labs(title = "Figure1:Number of Cartels Active in Each State", x = "State", y = "Count") +
-  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
-```
-
-```{r}
+```{r, warning = FALSE}
 # Network properties visualization (Degree Distribution)
 # Prepare the network for degree visualization
 rivalry_edges <- data.frame(
@@ -713,7 +704,7 @@ ggplot2::ggplot(data.frame(Degree = degree_distribution), ggplot2::aes(x = Degre
   ggplot2::labs(title = "Figure2: Degree Distribution of Rivalry Network", x = "Degree", y = "Frequency")
 ```
 
-```{r}
+```{r, warning = FALSE}
 # Extract binary columns related to cartel activities
 activity_columns <- c("actividades_delictivas", "narcotrafico", 
                       "conflictos_armados", "presencia_noviolenta", 
@@ -744,9 +735,47 @@ ggcorrplot::ggcorrplot(activity_correlation,
 
 ```
 
+```{r, warning = FALSE}
+# Network Summaries
+# Rivalries Network
+snafun::g_summary(g)
+
+# Set edge colors for Rivalries
+igraph::E(g_igraph)$color <- "red"
+
+# Plot Rivalries Network
+snafun::plot(g_igraph, 
+             vertex.label = NA, 
+             vertex.size = 7, 
+             edge.color = igraph::E(g_igraph)$color, 
+             main = "Cartel Network Rivalries")
+
+
+# Alliances Network
+snafun::g_summary(g_alliances)
+
+# Set edge colors for Alliances
+igraph::E(g_alliances_i)$color <- "blue"
+
+# Plot Alliances Network
+snafun::plot(g_alliances_i, 
+             vertex.label = NA, 
+             vertex.size = 7, 
+             edge.color = igraph::E(g_alliances_i)$color, 
+             main = "Cartel Network Alliances")
+```
+
+The rivalry network is sparsely connected and exhibits low clustering. However, all nodes are engaged in at least one rivalry, and every rivalry is mutual as our network is undirected. The infinite mean distance indicates disconnected subgroups, which might represent distinct clusters or factions within the cartels. These properties suggest a fragmented yet competitive network of cartel rivalries.
+
+The alliances network is highly fragmented and sparsely connected. While all alliances are mutual since this is an undirected network, the network contains a large proportion of isolates (40%), indicating that many cartels operate independently without forming alliances. The low transitivity (3.4%) suggests weak clustering and cooperation between groups, and the infinite mean distance points to disconnected subgroups or isolated clusters. Overall, this network reflects a limited and fragmented system of cooperation among cartels.
+
+\pagebreak
+
 ## Appendix B: ERGM Modeling
 
-```{r, fig.width=8, fig.height=6}
+### Goodness of Fit (GOF) Statistics
+
+```{r, warning = FALSE, fig.width=8, fig.height=6}
 
 # Generate GOF statistics
 gofm <- ergm::gof(m9)
@@ -754,8 +783,10 @@ gofm <- ergm::gof(m9)
 # Plot GOF using snafun
 snafun::stat_plot_gof(gofm)
 ```
+
 \pagebreak
-```{r, fig.width=0.5, fig.height=1}
+
+```{r, warning = FALSE, fig.width=0.5, fig.height=1}
 texreg::screenreg(
   list(m1, m2, m3),
   custom.model.names = c("Model 1", "Model 2", "Model 3")
@@ -763,47 +794,37 @@ texreg::screenreg(
 
 ```
 
-```{r}
+```{r, warning = FALSE}
 #| echo: false
 cat("Table 2: ERGM Model Results for Models 1-3")
 ```
 
-
-```{r}
+```{r, warning = FALSE}
 texreg::screenreg(
   list(m4, m5, m6),
   custom.model.names = c("Model 4", "Model 5", "Model 6")
 )
 ```
 
-```{r}
+```{r, warning = FALSE}
 #| echo: false
 cat("Table 3: ERGM Model Results for Models 4-6")
 ```
 
-
-```{r}
+```{r, warning = FALSE}
 texreg::screenreg(
   list(m7, m8, m9),
   custom.model.names = c("Model 7", "Model 8", "Model 9")
 )
 ```
 
-```{r}
+```{r, warning = FALSE}
 #| echo: false
 cat("Table 4: ERGM Model Results for Models 7-9")
 ```
 
-## Appendix C: ERGM Terms
+## Appendix C
 
-| Term                             | RQ       | Hypothesis       | Role                                                                 | Interpretation                                                                                                                                                                                                 |
-|----------------------------------|----------|------------------|----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| edges                            | All      | Baseline         | Captures the baseline likelihood of rivalry ties forming             | Negative coefficient indicates rivalry ties are less likely to form without other structural or covariate effects.                                                                                           |
-| gwdsp.fixed.0.5                  | RQ1      | Hypothesis 1.1   | Captures the influence of indirect ties (paths of length 2)          | Positive coefficient indicates that indirect connections (e.g., common enemies) reduce rivalry formation.                                                                                                   |
-| nodecov.alliance_degree          | RQ2      | Hypothesis 2.2   | Measures the direct connections of a cartel in the alliance network  | Positive coefficient suggests cartels with more alliances tend to have more rivals.                                                                                                                          |
-| nodecov.alliance_eigenvector     | RQ2      | Hypothesis 2.1   | Tests whether broader influence in the alliance network impacts rivalry formation | Not significant, indicating broader influence is less impactful than direct connections.                                                                               |
-| kstar2                           | RQ2      | Hypothesis 2.3   | Measures structural aggressiveness through shared ties               | Negative coefficient shows cartels avoid multi-party conflicts (e.g., multi-party conflicts), preferring hierarchical structures.                                                                             |
-| nodecov.num_states               | RQ3      | Hypothesis 3.1   | Measures geographic reach by counting the states a cartel is active in | Not significant, suggesting that cross-state activity does not strongly predict rivalry formation.                                                                                                           |
-| edgecov.state_dependency_matrix2 | RQ3      | Hypothesis 3.2   | Captures the effect of geographic proximity on rivalry formation     | Positive coefficient indicates cartels in the same state are more likely to become rivals.                                                                                                                   |
-| degree1                          | Control  | Control          | Control variable to account for peripheral cartels                   | Positive coefficient suggests low-degree nodes still influence rivalry formation.                                                                                                                            |
-| gwesp(0.5)                       | Control  | Control          | Clustering                                                           | Not significant; clustering does not play a major role in rivalry formation.                                                                                                                                 |
+![ERGM Terms](Figures/Table2.png)
+
+\pagebreak
